@@ -1,6 +1,6 @@
 abstract type Policy end
 
-function policy(p::Policy, traj::ContactTraj, t::T) where T
+function policy(p::Policy, traj::Trajectory, t::T) where T
     @warn "policy not defined"
     return nothing
 end
@@ -8,20 +8,19 @@ end
 """
     no policy
 """
-struct NoPolicy{T} <: Policy
-    u::Vector{T}
+struct EmptyPolicy{nu,T} <: Policy
+    u::SVector{nu,T}
 end
 
-function no_policy(model::ContactModel)
-    NoPolicy(zeros(model.dim.u))
+function empty_policy(model)
+    EmptyPolicy(@SVector zeros(model.nu))
 end
 
-function policy(p::NoPolicy, x, traj::ContactTraj, t)
+function policy(p::EmptyPolicy, traj::Trajectory, t)
     return p.u
 end
 
 """
     control saturation
 """
-
-control_saturation(u, uL, uU) = min.(max.(uL, u), uU)
+control_saturation(u, uL, uU) = min.(max.(uL, u), uU) #TODO: make allocation free

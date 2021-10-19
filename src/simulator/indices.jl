@@ -38,12 +38,11 @@ struct Indicesθ
     q1::Vector{Int} 
     u::Vector{Int} 
     w::Vector{Int} 
-    f1::Vector{Int} 
-    f2::Vector{Int} 
+    f::Vector{Int} 
     h::Vector{Int} 
 end
 
-function indices_θ(model; nf1=1, nf2=1) 
+function indices_θ(model; nf=1) 
     nq = model.nq 
     nu = model.nu 
     nw = model.nw 
@@ -52,20 +51,18 @@ function indices_θ(model; nf1=1, nf2=1)
     q1 = collect(nq .+ (1:nq))
     u = collect(2nq .+ (1:nu))
     w = collect(2nq + nu .+ (1:nw))
-    f1 = collect(2nq + nu + nw .+ (1:nf1))
-    f2 = collect(2nq + nu + nw + nf1 .+ (1:nf2))
-    h = collect(2nq + nu + nw + nf1 + nf2 .+ (1:1))
+    f = collect(2nq + nu + nw .+ (1:nf))
+    h = collect(2nq + nu + nw + nf .+ (1:1))
 
-    Indicesθ(q0, q1, u, w, f1, f2, h) 
+    Indicesθ(q0, q1, u, w, f, h) 
 end
 
-function initialize_θ!(θ, idx, q0, q1, u, w, f1, f2, h) 
+function initialize_θ!(θ, idx, q0, q1, u, w, f, h) 
     θ[idx.q0] .= q0 
     θ[idx.q1] .= q1 
     θ[idx.u] .= u
     θ[idx.w] .= w
-    θ[idx.f1] .= f1
-    θ[idx.f2] .= f2
+    θ[idx.f] .= f
     θ[idx.h] .= h
 end
 
@@ -74,7 +71,6 @@ end
 function indices_optimization(model) 
     nz = num_var(model) 
     ny = nz - model.nq 
-    nθ = num_data 
 
     IndicesOptimization(
         nz, 

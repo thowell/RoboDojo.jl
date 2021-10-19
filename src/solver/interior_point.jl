@@ -196,7 +196,6 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
     # initialization
     solver = ip.solver
     ip.iterations = 0
-    no_progress = 0
 
     ip.methods.r!(r, z, θ, 0.0)
 
@@ -359,7 +358,7 @@ function centering(z::AbstractVector{T}, Δaff::AbstractVector{T},
     Δort[2] .*= -αaff 
     Δort[2] .+= zo2 
 
-    μaff = Δort[1]' * Δort[2] # (zo1 - αaff .* Δo1)' * (zo2 - αaff * Δo2)
+    μaff = Δort[1]' * Δort[2]
     # soc
     for i in eachindex(socz[1])
         zs1 = @views z[socz[1][i]]
@@ -376,7 +375,7 @@ function centering(z::AbstractVector{T}, Δaff::AbstractVector{T},
         Δsoc[2][i] .+= zs2 
 
         μ += zs1' * zs2
-        μaff += Δsoc[1][i]' * Δsoc[2][i] # (zs1 - αaff .* Δs1)' * (zs2 - αaff .* Δs2)
+        μaff += Δsoc[1][i]' * Δsoc[2][i]
     end
     μ /= n
     μaff /= n

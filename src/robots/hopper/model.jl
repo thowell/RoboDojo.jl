@@ -264,73 +264,8 @@ rθ_sp = Symbolics.sparsejacobian(r, θ)
 r_hopper! = eval(Symbolics.build_function(r, z, θ, μ)[2])
 rz_hopper! = eval(Symbolics.build_function(rz, z, θ)[2])
 rθ_hopper! = eval(Symbolics.build_function(rθ, z, θ)[2])
-# rz_sp_hopper! = eval(Symbolics.build_function(rz_sp.nzval, z, θ)[2])
-# rθ_sp_hopper! = eval(Symbolics.build_function(rθ_sp.nzval, z, θ)[2])
-# idx_rz_sp = [findnz(rz_sp)[1:2]...]
-# idx_rθ_sp = [findnz(rθ_sp)[1:2]...]
-
-# r0 = zeros(length(r))
-# rz0 = zeros(size(rz))
-# rθ0 = zeros(size(rθ))
-# rz0_sp_vec = similar(rz_sp.nzval, Float64)
-# rθ0_sp_vec = similar(rθ_sp.nzval, Float64)
-# rz0_sp_mat = similar(rz_sp, Float64)
-# rθ0_sp_mat = similar(rθ_sp, Float64)
-
-# rz_sp
-
-# # rz0_sp = zeros(size(rz_sp.nzval))
-# # rθ0_sp = zeros(size(rθ_sp.nzval))
-
-# z0 = rand(nz) 
-# θ0 = rand(nθ) 
-# μ0 = [1.0]
-
-# rz_sp_hopper!(rz0_sp_vec, z0, θ0)
-# rθ_sp_hopper!(rθ0_sp_vec, z0, θ0)
-# rz0_sp_mat
-
-
-# rz0_sp_mat[CartesianIndices(idx_rz_sp[1], idx_rz_sp[2])]
-# rθ0_sp_mat[idx_rθ_sp[1], idx_rθ_sp[2]] .= rθ0_sp
-
-
-# @benchmark rz_sp_hopper!($rz0_sp, $z0, $θ0)
-# @benchmark rθ_sp_hopper!($rθ0_sp, $z0, $θ0)
-
 
 # using BenchmarkTools
 # @benchmark r_hopper!($r0, $z0, $θ0, $μ0)
 # @benchmark rz_hopper!($rz0, $z0, $θ0)
 # @benchmark rθ_hopper!($rθ0, $z0, $θ0)
-
-
-# A = rand(50, 50)
-# A = A' * A
-# b = rand(50)
-
-# x = A \ b
-
-# xsp = zero(x)
-# Asp = sparse(A)
-# fact = ilu0(Asp)
-
-# function ilu_solve!(fact, A, b, x)
-#     ilu0!(fact, A)
-#     ldiv!(x, fact, b)
-# end
-# ilu_solve!(fact, Asp, b, xsp)
-# @benchmark ilu_solve!($fact, $Asp, $b, $xsp)
-
-# norm(x - xsp, Inf) #< 1.0e-8
-
-# @benchmark $x = $A \ $b
-
-# solv = lu_solver(copy(A))
-# xlu = zero(x) 
-# linear_solve!(solv, xlu, A, b)
-# @benchmark linear_solve!($solv, $xlu, $A, $b)
-
-# norm(x - xlu, Inf)
-
-# fact_sp = lu(Asp)

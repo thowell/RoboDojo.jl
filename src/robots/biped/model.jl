@@ -65,12 +65,11 @@ mutable struct Biped{T}
 	J_foot2::T
 
 	 # joint friction 
-	 friction_joint::T 
-	 # TODO: individual joint frictions
+	 friction_joint::Vector{T} 
  
 	 # environment 
-	 friction_body_world::T 
-	 friction_foot_world::T 
+	 friction_body_world::Vector{T} 
+	 friction_foot_world::Vector{T} 
 	 gravity::T
 end
 
@@ -474,11 +473,11 @@ J_thigh = 0.01256
 J_calf = 0.00952
 J_foot = 0.0015
 
-friction_joint = 0.1 
+friction_joint = [0.1; 0.1; 0.1; 0.1; 0.1; 0.1] # q1-q6
 
 # world parameters
-friction_body_world = 0.5 
-friction_foot_world = 0.5 
+friction_body_world = [0.5; 0.5; 0.5; 0.5] # knee1, knee2, body1, body2
+friction_foot_world = [0.5; 0.5; 0.5; 0.5] # foot1, foot2, foot3, foot4
 gravity = 9.81
 
 biped = Biped(nq, nu, nw, nc,
@@ -528,7 +527,7 @@ function dynamics(model, h, q0, q1, u1, w1, λ1, q2)
 
 	return (0.5 * h[1] * D1L1 + D2L1 + 0.5 * h[1] * D1L2 - D2L2
 		+ transpose(input_jacobian()) * u1 
-        - model.friction_joint * [0.0; 0.0; 0.0; vm2[4:9]] # joint friction
+        - [0.0; 0.0; 0.0; model.friction_joint .* vm2[4:9]] # joint friction
         + λ1)
 end
 
@@ -547,9 +546,9 @@ function residual(model, z, θ, μ)
     q1 = θ[nq .+ (1:nq)] 
     u1 = θ[2nq .+ (1:nu)] 
     w1 = θ[2nq + nu .+ (1:nw)]
-    friction_body_world = θ[2nq + nu + nw .+ (1:1)] 
-    friction_foot_world = θ[2nq + nu + nw + 1 .+ (1:1)] 
-    h = θ[2nq + nu + nw + 2 .+ (1:1)] 
+    friction_body_world = θ[2nq + nu + nw .+ (1:4)] 
+    friction_foot_world = θ[2nq + nu + nw + 4 .+ (1:4)] 
+    h = θ[2nq + nu + nw + 8 .+ (1:1)] 
 
     # unpack variables
     q2 = z[1:nq] 
@@ -610,13 +609,13 @@ function residual(model, z, θ, μ)
      vT_body1 - sb1[7];
      vT_body2 - sb1[8];
      friction_foot_world[1] * γ1[1] - ψ1[1];
-     friction_foot_world[1] * γ1[2] - ψ1[2];
-     friction_foot_world[1] * γ1[3] - ψ1[3];
-     friction_foot_world[1] * γ1[4] - ψ1[4];
+     friction_foot_world[2] * γ1[2] - ψ1[2];
+     friction_foot_world[3] * γ1[3] - ψ1[3];
+     friction_foot_world[4] * γ1[4] - ψ1[4];
      friction_body_world[1] * γ1[5] - ψ1[5];
-     friction_body_world[1] * γ1[6] - ψ1[6];
-     friction_body_world[1] * γ1[7] - ψ1[7];
-     friction_body_world[1] * γ1[8] - ψ1[8];
+     friction_body_world[2] * γ1[6] - ψ1[6];
+     friction_body_world[3] * γ1[7] - ψ1[7];
+     friction_body_world[4] * γ1[8] - ψ1[8];
      γ1 .* sγ1 .- μ[1];
 	 cone_product([ψ1[1]; b1[1]], [sψ1[1]; sb1[1]]) - [μ[1]; 0.0]; 
      cone_product([ψ1[2]; b1[2]], [sψ1[2]; sb1[2]]) - [μ[1]; 0.0]; 
@@ -631,7 +630,7 @@ end
 
 nz = nq + nc + nc + nc + nc + nc + nc 
 ny = nc + nc + nc + nc + nc + nc
-nθ = 2nq + nu + nw + 2 + 1 
+nθ = 2nq + nu + nw + 8 + 1 
 
 @variables z[1:nz] θ[1:nθ] μ[1:1]
 r = residual(biped, z, θ, μ)
@@ -644,30 +643,13 @@ r_biped! = eval(Symbolics.build_function(r, z, θ, μ)[2])
 rz_biped! = eval(Symbolics.build_function(rz, z, θ)[2])
 rθ_biped! = eval(Symbolics.build_function(rθ, z, θ)[2])
 
-# rz_sp! = eval(Symbolics.build_function(rz_sp.nzval, z, θ)[2])
-# rθ_sp! = eval(Symbolics.build_function(rθ_sp.nzval, z, θ)[2])
-
-# r0 = zeros(length(r))
-# rz0 = zeros(size(rz))
-# rθ0 = zeros(size(rθ))
-
-# rz0_sp = zeros(size(rz_sp.nzval))
-# rθ0_sp = zeros(size(rθ_sp.nzval))
-
-# z0 = rand(nz) 
-# θ0 = rand(nθ) 
-
-# μ0 = [1.0]
-
-# r_biped!(r0, z0, θ0, μ0)
-# rz_biped!(rz0, z0, θ0)
-# rθ_biped!(rθ0, z0, θ0)
-# rz_sp!(rz0_sp, z0, θ0)
-# rθ_sp!(rθ0_sp, z0, θ0)
-
 # using BenchmarkTools
 # @benchmark r_biped!($r0, $z0, $θ0, $μ0)
 # @benchmark rz_biped!($rz0, $z0, $θ0)
 # @benchmark rθ_biped!($rθ0, $z0, $θ0)
 # @benchmark rz_sp!($rz0_sp, $z0, $θ0)
 # @benchmark rθ_sp!($rθ0_sp, $z0, $θ0)
+
+function configuration(model::Biped)
+	SVector{model.nq}([0.0; 1.0; 0.01 * π; -0.5 * π; 0.0 * π; -0.01 * π; 0.5 * π; 0.0 * π; -0.0 * π])
+end

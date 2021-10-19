@@ -7,8 +7,6 @@ include(joinpath("../src/simulator/indices.jl"))
 
 model = quadruped 
 
-space = Euclidean(nz)
-
 ip_opts = InteriorPointOptions(
     undercut = Inf,
     γ_reg = 0.1,
@@ -24,24 +22,22 @@ q1 = copy(q0)
 u = zeros(nu) 
 w = zeros(nw)
 h = 0.01
-f1 = model.friction_body_world 
-f2 = model.friction_foot_world
+f = [model.friction_body_world; model.friction_foot_world]
 
-idx_x = indices_z(quadruped)
-idx_θ = indices_θ(quadruped)
+idx_z = indices_z(quadruped)
+idx_θ = indices_θ(quadruped, nf=length(f))
 idx_opt = indices_optimization(quadruped)
 
 nz = num_var(quadruped) 
-nθ = num_data(quadruped)
+nθ = num_data(quadruped, nf=length(f))
 z0 = zeros(nz) 
 θ0 = zeros(nθ) 
-initialize_z!(z0, idx_x, q1)
-initialize_θ!(θ0, idx_θ, q0, q1, u, w, f1, f2, h)
+initialize_z!(z0, idx_z, q1)
+initialize_θ!(θ0, idx_θ, q0, q1, u, w, f, h)
 
 ip = interior_point(
          z0,
          θ0,
-         s = space,
          idx = idx_opt,
          r! = r_quadruped!,
          rz! = rz_quadruped!,
@@ -53,39 +49,22 @@ ip = interior_point(
 interior_point_solve!(ip) 
 
 T = 100
-q_hist = [zeros(nq) for t = 1:(T+2)]
-q_hist[1] = q0
-q_hist[2] = q1
+traj = Trajectory(model, T)
+traj.q[1] = q0 
+traj.q[2] = q1
+traj.v[1] = (q1 - q0) ./ h
 
-function simulate!(q_hist, ip, u, w, f1, f2, h, idx_x, idx_θ, T)
-    for t = 1:T
-        # initialize
-        initialize_z!(ip.z, idx_x, q_hist[t+1])
-        initialize_θ!(ip.θ, idx_θ, q_hist[t], q_hist[t+1], u, w, f1, f2, h)
+p = empty_policy(model)
+w = empty_disturbances(model) 
 
-        # solve
-        status = interior_point_solve!(ip)
 
-        # status check
-        if !status 
-            @show norm(ip.r) 
-            @warn "residual failure"
-            break
-        end
-
-        # cache solution
-        q = @views ip.z[idx_x.q]
-        q_hist[t+2] .= q
-    end
-end
-
-simulate!(q_hist, ip, u, w, f1, f2, h, idx_x, idx_θ, T)
-@benchmark simulate!($q_hist, $ip, $u, $w, $f1, $f2, $h, $idx_x, $idx_θ, $T)
+simulate!(traj, ip, p, w, f, h, idx_x, idx_θ, T)
+@benchmark simulate!($traj, $ip, $p, $w, $f, $h, $idx_x, $idx_θ, $T)
 
 vis = Visualizer()
 open(vis)
 visualize!(vis, model, 
-     q_hist[1:1:end],
+     traj.q[1:1:end],
      Δt = 1 * h)
 
 settransform!(vis["/Cameras/default"],

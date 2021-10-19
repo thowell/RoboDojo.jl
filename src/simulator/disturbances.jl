@@ -6,16 +6,16 @@ function disturbances(d::Disturbances, x, t)
 end
 
 """
-    no disturbances
+    empty disturbances
 """
-struct NoDisturbances{T} <: Disturbances
-    w::Vector{T}
+struct EmptyDisturbances{nw,T} <: Disturbances
+    w::SVector{nw,T}
 end
 
-function no_disturbances(model::ContactModel)
-    NoDisturbances(zeros(model.dim.w))
+function empty_disturbances(model)
+    EmptyDisturbances(@SVector zeros(model.nw))
 end
 
-function disturbances(d::NoDisturbances, x, t)
+function disturbances(d::EmptyDisturbances, x, t)
     return d.w
 end
