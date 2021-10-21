@@ -1,4 +1,4 @@
-abstract type Disturbances end
+abstract type Disturbances{T} end
 
 function disturbances(d::Disturbances, x, t)
     @warn "disturbances not defined"
@@ -8,12 +8,12 @@ end
 """
     empty disturbances
 """
-struct EmptyDisturbances{nw,T} <: Disturbances
-    w::SVector{nw,T}
+struct EmptyDisturbances{T} <: Disturbances{T}
+    w::Vector{T}
 end
 
 function empty_disturbances(model)
-    EmptyDisturbances(@SVector zeros(model.nw))
+    EmptyDisturbances(zeros(model.nw))
 end
 
 function disturbances(d::EmptyDisturbances, x, t)

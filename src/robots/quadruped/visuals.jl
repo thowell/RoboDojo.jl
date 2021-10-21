@@ -145,7 +145,7 @@ end
 function visualize!(vis, model, q; 
 	Δt=0.1,
 	r_body=0.02, r_thigh=0.0175, r_calf=0.0125, r_hip=0.02, r_knee=0.02, r_foot=0.02,
-	color_opacity=1.0)
+	color_opacity=1.0, fixed_camera=true)
 
 	build_robot!(vis, model,
 		r_body=r_body, r_thigh=r_thigh, r_calf=r_calf, r_hip=r_hip, r_knee=r_knee, r_foot=r_foot,
@@ -160,11 +160,18 @@ function visualize!(vis, model, q;
 	end
 
 	MeshCat.setanimation!(vis, anim)
+
+	if fixed_camera 
+		settransform!(vis["/Cameras/default"],
+        compose(Translation(0.0, -50.0, -1.0),LinearMap(RotZ(-pi / 2.0))))
+        setprop!(vis["/Cameras/default/rotated/<object>"], "zoom", 25)
+	end
 end
 
-vis = Visualizer()
-open(vis)
 
-q0 = [0.0; 0.5; 0.0 * π; 0.25 * π; 0.5 * π; 0.1 * π; 0.3 * π; -0.25 * π; 0.1 * π; -0.5 * π; -0.1 * π]
-build_robot!(vis, quadruped)
-set_robot!(vis, quadruped, q0)
+# vis = Visualizer()
+# open(vis)
+
+# q0 = [0.0; 0.5; 0.0 * π; 0.25 * π; 0.5 * π; 0.1 * π; 0.3 * π; -0.25 * π; 0.1 * π; -0.5 * π; -0.1 * π]
+# build_robot!(vis, quadruped)
+# set_robot!(vis, quadruped, q0)

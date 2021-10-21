@@ -13,7 +13,7 @@
         q7 - leg 4 shoulder angle (absolute)
         q8 - leg 4 knee angle     (absolute)
 """
-mutable struct Quadruped{T} 
+mutable struct Quadruped{T} <: Model{T}
     # dimensions
 	nq::Int # generalized coordinates 
     nu::Int # controls 
@@ -689,3 +689,7 @@ rθ_quadruped! = eval(Symbolics.build_function(rθ, z, θ)[2])
 # @benchmark rθ_quadruped!($rθ0, $z0, $θ0)
 # @benchmark rz_sp!($rz0_sp, $z0, $θ0)
 # @benchmark rθ_sp!($rθ0_sp, $z0, $θ0)
+
+function configuration(model::Quadruped) 
+    [0.0; 0.5; 0.0 * π; 0.25 * π; 0.5 * π; 0.1 * π; 0.3 * π; -0.25 * π; 0.1 * π; -0.5 * π; -0.1 * π]
+end

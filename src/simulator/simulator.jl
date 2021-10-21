@@ -1,9 +1,10 @@
-struct Simulator{T}
-    model 
-    policy::Policy 
-    dist::Disturbances 
-    traj::Trajectory 
-    ip::InteriorPoint 
+
+struct Simulator{T,R,RZ,Rθ,M<:Model{T},P<:Policy{T},D<:Disturbances{T}}
+    model::M
+    policy::P
+    dist::D
+    traj::Trajectory{T}
+    ip::InteriorPoint{T,R,RZ,Rθ}
     idx_z::IndicesZ
     idx_θ::Indicesθ
     f::Vector{T}
@@ -51,12 +52,12 @@ function Simulator(model, T;
     Simulator(model, policy, dist, traj, ip, idx_z, idx_θ, f, h)
 end
 
-function step!(traj::Trajectory, ip::InteriorPoint, p::Policy, w::Disturbances, f, h, idx_z, idx_θ, t)
+function step!(traj::Trajectory{T}, ip::InteriorPoint{T}, p::Policy{T}, w::Disturbances{T}, f::Vector{T}, h::T, idx_z::IndicesZ, idx_θ::Indicesθ, t::Int) where T
     # policy 
-    traj.u[t] = policy(p, traj, t)
+    traj.u[t] .= policy(p, traj, t)
 
     # disturbances 
-    traj.w[t] = disturbances(w, traj.q[t+1], t)
+    traj.w[t] .= disturbances(w, traj.q[t+1], t)
 
     # initialize
     initialize_z!(ip.z, idx_z, traj.q[t+1])
@@ -73,27 +74,40 @@ function step!(traj::Trajectory, ip::InteriorPoint, p::Policy, w::Disturbances, 
     end
 
     # cache solution
-    q = @views ip.z[idx_x.q]
-    γ = @views ip.z[idx_x.γ] 
-    b = @views ip.z[idx_x.b]
-    traj.q[t+2] = q
-    traj.v[t+1] = (traj.q[t+2] - traj.q[t+1]) ./ h
-    traj.γ[t] = γ 
-    traj.b[t] = b
+    q = @views ip.z[idx_z.q]
+    γ = @views ip.z[idx_z.γ] 
+    b = @views ip.z[idx_z.b]
+    traj.q[t+2] .= q
+    # traj.v[t+1] .= (traj.q[t+2] - traj.q[t+1]) ./ h #TODO: make allocation free
+    traj.v[t+1] .= traj.q[t+2]
+    traj.v[t+1] .-= traj.q[t+1] 
+    traj.v[t+1] ./= h
+    traj.γ[t] .= γ 
+    traj.b[t] .= b
 
     return true
 end
 
-function simulate!(traj::Trajectory, ip::InteriorPoint, p::Policy, w::Disturbances, f, h, idx_z, idx_θ, T)
-    for t = 1:T
+function simulate!(traj::Trajectory{T}, ip::InteriorPoint{T}, 
+        p::Policy{T}, w::Disturbances{T}, f::Vector{T}, h::T, idx_z::IndicesZ, idx_θ::Indicesθ, N::Int) where T
+    for t = 1:N
         status = step!(traj, ip, p, w, f, h, idx_z, idx_θ, t)
         !status && break
     end
 end
 
-function simulate!(s::Simulator, q0, q1)
-    s.traj.q[1] = q0
-    # s.traj.q[2] = q1
-    # s.traj.v[1] = v
-    # simulate!(s.traj, s.ip, s.p, s.w, s.f, s.h, s.idx_z, s.idx_θ, s.T)
+function simulate!(s::Simulator{T}, q::Vector{T}, v::Vector{T}) where T
+    s.traj.q[2] .= q
+    s.traj.v[1] .= v
+    # s.traj.q[1] .= s.traj.q[2] - v * h
+    s.traj.q[1] .= v 
+    s.traj.q[1] .*= s.h
+    s.traj.q[1] .*= -1.0
+    s.traj.q[1] .+= q
+    N = length(s.traj.u)
+    simulate!(s.traj, s.ip, s.policy, s.dist, s.f, s.h, s.idx_z, s.idx_θ, N)
+end
+
+function visualize!(vis, s::Simulator; skip=1, fixed_camera=true)
+    visualize!(vis, s.model, s.traj.q[1:skip:end], Δt=skip * s.h, fixed_camera=fixed_camera)
 end

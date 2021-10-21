@@ -1,4 +1,4 @@
-abstract type Policy end
+abstract type Policy{T} end
 
 function policy(p::Policy, traj::Trajectory, t::T) where T
     @warn "policy not defined"
@@ -8,12 +8,12 @@ end
 """
     no policy
 """
-struct EmptyPolicy{nu,T} <: Policy
-    u::SVector{nu,T}
+struct EmptyPolicy{T} <: Policy{T}
+    u::Vector{T}
 end
 
 function empty_policy(model)
-    EmptyPolicy(@SVector zeros(model.nu))
+    EmptyPolicy(zeros(model.nu))
 end
 
 function policy(p::EmptyPolicy, traj::Trajectory, t)

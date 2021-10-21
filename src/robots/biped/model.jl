@@ -13,7 +13,7 @@
 		q5 - leg 2 calf angle  (absolute)
 		q6 - leg 2 foot angle  (absolute) 
 """
-mutable struct Biped{T}
+mutable struct Biped{T} <: Model{T}
     # dimensions
     nq::Int # generalized coordinates
     nu::Int # controls

@@ -101,7 +101,7 @@ function set_robot!(vis::Visualizer, model::Biped, q;
 end
 
 function visualize!(vis, model::Biped, q; 
-	Δt=0.1, r=0.04, r_contact=0.04, color_opacity=1.0)
+	Δt=0.1, r=0.04, r_contact=0.04, color_opacity=1.0, fixed_camera=true)
 
 	build_robot!(vis, model, r=r, r_contact=r_contact, color_opacity=color_opacity)
 
@@ -114,6 +114,12 @@ function visualize!(vis, model::Biped, q;
 	end
 
 	MeshCat.setanimation!(vis, anim)
+
+    if fixed_camera
+        settransform!(vis["/Cameras/default"],
+            compose(Translation(0.0, -50.0, -1.0),LinearMap(RotZ(-pi / 2.0))))
+        setprop!(vis["/Cameras/default/rotated/<object>"], "zoom", 25)
+    end
 end
 
 # vis = Visualizer()

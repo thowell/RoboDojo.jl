@@ -8,7 +8,7 @@
 			t - body orientation
 			r - leg length
 """
-struct Hopper{T}
+struct Hopper{T} <: Model{T}
     # dimensions
     nq::Int # generalized coordinates
     nu::Int # controls
@@ -269,3 +269,7 @@ rθ_hopper! = eval(Symbolics.build_function(rθ, z, θ)[2])
 # @benchmark r_hopper!($r0, $z0, $θ0, $μ0)
 # @benchmark rz_hopper!($rz0, $z0, $θ0)
 # @benchmark rθ_hopper!($rθ0, $z0, $θ0)
+
+function configuration(model::Hopper) 
+    return [0.0, 1.0, 0.0 * π, 0.5]
+end

@@ -71,7 +71,7 @@ end
 function indices_optimization(model) 
     nz = num_var(model) 
     ny = nz - model.nq 
-
+    nc = model.nc
     IndicesOptimization(
         nz, 
         nz, 

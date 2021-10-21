@@ -18,7 +18,6 @@ end
 function indices_optimization(model::Hopper) 
     nz = num_var(model) 
     ny = nz - model.nq 
-    nθ = num_data 
 
     IndicesOptimization(
         nz, 
@@ -37,4 +36,18 @@ function indices_optimization(model::Hopper)
         collect(1:nq),
         collect(nq .+ (1:(4 + 1 + 1 + 1 + 1))),
         collect(nq + 4 + 1 + 1 + 1 + 1 .+ (1:8)))
+end
+
+function Trajectory(model::Hopper, T; nv=model.nq, nb=2) 
+    nq = model.nq 
+    nu = model.nu
+    nw = model.nw 
+    nc = 4
+    q = [zeros(nq) for t = 1:T+2]
+    v = [zeros(nv) for t = 1:T+1] 
+    u = [zeros(nu) for t = 1:T]
+    γ = [zeros(nc) for t = 1:T] 
+    b = [zeros(nb) for t = 1:T] 
+    w = [zeros(nw) for t = 1:T] 
+    Trajectory(q, v, u, γ, b, w)
 end

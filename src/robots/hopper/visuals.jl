@@ -1,5 +1,5 @@
 # Visualization
-function visualize!(vis, model::Hopper, q; Δt = 0.1)
+function visualize!(vis, model::Hopper, q; Δt = 0.1, fixed_camera=true)
 
     r_body = model.body_radius
     r_foot = model.foot_radius
@@ -50,8 +50,11 @@ function visualize!(vis, model::Hopper, q; Δt = 0.1)
         end
     end
 
-    # settransform!(vis["/Cameras/default"],
-    #     compose(Translation(0.0, 0.5, -1.0),LinearMap(RotZ(-pi / 2.0))))
+    if fixed_camera 
+        settransform!(vis["/Cameras/default"],
+        compose(Translation(0.0, -50.0, -1.0),LinearMap(RotZ(-pi / 2.0))))
+        setprop!(vis["/Cameras/default/rotated/<object>"], "zoom", 25)
+    end
 
     MeshCat.setanimation!(vis, anim)
 end
