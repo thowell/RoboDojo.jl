@@ -1,5 +1,3 @@
-include(joinpath(@__DIR__, "..", "visual_utils.jl"))
-
 function build_robot!(vis::Visualizer, model::Biped; 
     r=0.035, r_contact=r * 8.0 / 7.0, color_opacity=1.0)
 

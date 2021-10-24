@@ -51,3 +51,5 @@ function Trajectory(model::Hopper, T; nv=model.nq, nb=2)
     w = [zeros(nw) for t = 1:T] 
     Trajectory(q, v, u, γ, b, w)
 end
+
+

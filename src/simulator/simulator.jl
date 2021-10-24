@@ -12,8 +12,13 @@ struct Simulator{T,R,RZ,Rθ,M<:Model{T},P<:Policy{T},D<:Disturbances{T}}
 end
 
 function Simulator(model, T; 
-        h=0.01, policy=empty_policy(model), dist=empty_disturbances(model), f=Float64[],
-        residual=r!, jacobian_z=rz!, jacobian_θ=rθ!,
+        h=0.01, 
+        policy=empty_policy(model), 
+        dist=empty_disturbances(model), 
+        f=friction_coefficients(model),
+        residual=eval(residual_name(model)), 
+        jacobian_z=eval(jacobian_var_name(model)), 
+        jacobian_θ=eval(jacobian_data_name(model)),
         opts=InteriorPointOptions(
             undercut=Inf,
             γ_reg=0.1,
@@ -32,7 +37,7 @@ function Simulator(model, T;
     nθ = num_data(model, nf=length(f))
     z0 = zeros(nz) 
     θ0 = zeros(nθ) 
-    q0 = configuration(model)
+    q0 = nominal_configuration(model)
     initialize_z!(z0, idx_z, q0)
     initialize_θ!(θ0, idx_θ, q0, q0, zeros(model.nu), zeros(model.nw), f, h)
 

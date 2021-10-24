@@ -1,4 +1,3 @@
-include(joinpath(@__DIR__, "..", "visual_utils.jl"))
 function build_robot!(vis::Visualizer, model::Quadruped; 
 	r_body=0.02, r_thigh=0.0175, r_calf=0.0125, r_hip=0.02, r_knee=0.02, r_foot=0.02,
 	color_opacity=1.0)
