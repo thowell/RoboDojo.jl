@@ -1,2 +1,2 @@
 # RobotDojo.jl
-This repository implements a differentiable contact-physics simulator for planar robotic systems. 
+A differentiable simulator for planar robotic systems. This repository includes models for hopper, biped, quadruped, and box systems.
