@@ -34,8 +34,8 @@ end
 # @benchmark initialize_z!($z0, $idx_x, $q1)
 
 struct Indicesθ 
-    q0::Vector{Int}
-    q1::Vector{Int} 
+    q1::Vector{Int}
+    q2::Vector{Int} 
     u::Vector{Int} 
     w::Vector{Int} 
     f::Vector{Int} 
@@ -47,26 +47,26 @@ function indices_θ(model; nf=1)
     nu = model.nu 
     nw = model.nw 
 
-    q0 = collect(1:nq)
-    q1 = collect(nq .+ (1:nq))
+    q1 = collect(1:nq)
+    q2 = collect(nq .+ (1:nq))
     u = collect(2nq .+ (1:nu))
     w = collect(2nq + nu .+ (1:nw))
     f = collect(2nq + nu + nw .+ (1:nf))
     h = collect(2nq + nu + nw + nf .+ (1:1))
 
-    Indicesθ(q0, q1, u, w, f, h) 
+    Indicesθ(q1, q2, u, w, f, h) 
 end
 
-function initialize_θ!(θ, idx, q0, q1, u, w, f, h) 
-    θ[idx.q0] .= q0 
-    θ[idx.q1] .= q1 
+function initialize_θ!(θ, idx, q1, q2, u, w, f, h) 
+    θ[idx.q1] .= q1
+    θ[idx.q2] .= q2 
     θ[idx.u] .= u
     θ[idx.w] .= w
     θ[idx.f] .= f
     θ[idx.h] .= h
 end
 
-# @benchmark initialize_θ!($θ0, $idx_θ, $q0, $q1, $u0, $w0, $model.friction_body_world, $model.friction_foot_world, $h) 
+# @benchmark initialize_θ!($θ0, $idx_θ, $q1, $q2, $u0, $w0, $model.friction_body_world, $model.friction_foot_world, $h) 
 
 function indices_optimization(model) 
     nz = num_var(model) 

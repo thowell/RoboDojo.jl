@@ -34,6 +34,7 @@ include(joinpath("../src/simulator/simulator.jl"))
 
 # Robots
 include(joinpath("../src/robots/visual_utils.jl"))
+
 include(joinpath("../src/robots/hopper/model.jl"))
 include(joinpath("../src/robots/hopper/simulator.jl"))
 include(joinpath("../src/robots/hopper/visuals.jl"))
@@ -48,12 +49,12 @@ include(joinpath("../src/robots/box/model.jl"))
 include(joinpath("../src/robots/box/visuals.jl"))
 
 # code generation
-HOPPER_CODEGEN = :generate
-include(joinpath("../src/robots/hopper/codegen.jl"))
 BIPED_CODEGEN = :generate
 include(joinpath("../src/robots/biped/codegen.jl"))
 QUADRUPED_CODEGEN = :generate
 include(joinpath("../src/robots/quadruped/codegen.jl"))
+HOPPER_CODEGEN = :generate
+include(joinpath("../src/robots/hopper/codegen.jl"))
 # BOX_CODEGEN = :generate
 # include(joinpath("../src/robots/box/codegen.jl"))
 

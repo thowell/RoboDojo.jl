@@ -4,6 +4,7 @@ struct Simulator{T,R,RZ,Rθ,M<:Model{T},P<:Policy{T},D<:Disturbances{T}}
     policy::P
     dist::D
     traj::Trajectory{T}
+    grad::GradientTrajectory{T}
     ip::InteriorPoint{T,R,RZ,Rθ}
     idx_z::IndicesZ
     idx_θ::Indicesθ
@@ -19,6 +20,7 @@ function Simulator(model, T;
         residual=eval(residual_name(model)), 
         jacobian_z=eval(jacobian_var_name(model)), 
         jacobian_θ=eval(jacobian_data_name(model)),
+        diff_sol=false,
         opts=InteriorPointOptions(
             undercut=Inf,
             γ_reg=0.1,
@@ -26,7 +28,7 @@ function Simulator(model, T;
             κ_tol=1e-8,  
             max_ls=25,
             ϵ_min=0.25,
-            diff_sol=false,
+            diff_sol=diff_sol,
             verbose=false))
 
     idx_z = indices_z(model)
@@ -53,11 +55,12 @@ function Simulator(model, T;
          opts=opts)
 
     traj = Trajectory(model, T)
+    grad = GradientTrajectory(model, T)
 
-    Simulator(model, policy, dist, traj, ip, idx_z, idx_θ, f, h)
+    Simulator(model, policy, dist, traj, grad, ip, idx_z, idx_θ, f, h)
 end
 
-function step!(traj::Trajectory{T}, ip::InteriorPoint{T}, p::Policy{T}, w::Disturbances{T}, f::Vector{T}, h::T, idx_z::IndicesZ, idx_θ::Indicesθ, t::Int) where T
+function step!(traj::Trajectory{T}, grad::GradientTrajectory{T}, ip::InteriorPoint{T}, p::Policy{T}, w::Disturbances{T}, f::Vector{T}, h::T, idx_z::IndicesZ, idx_θ::Indicesθ, t::Int) where T
     # policy 
     traj.u[t] .= policy(p, traj, t)
 
@@ -79,38 +82,85 @@ function step!(traj::Trajectory{T}, ip::InteriorPoint{T}, p::Policy{T}, w::Distu
     end
 
     # cache solution
-    q = @views ip.z[idx_z.q]
-    γ = @views ip.z[idx_z.γ] 
-    b = @views ip.z[idx_z.b]
-    traj.q[t+2] .= q
-    # traj.v[t+1] .= (traj.q[t+2] - traj.q[t+1]) ./ h #TODO: make allocation free
-    traj.v[t+1] .= traj.q[t+2]
-    traj.v[t+1] .-= traj.q[t+1] 
-    traj.v[t+1] ./= h
-    traj.γ[t] .= γ 
-    traj.b[t] .= b
+    solution!(traj, ip.z, idx_z, h, t)
+
+    # cache gradients
+    ip.opts.diff_sol && gradient!(grad, ip.δz, idx_z, idx_θ, t)
 
     return true
 end
 
-function simulate!(traj::Trajectory{T}, ip::InteriorPoint{T}, 
+function solution!(traj::Trajectory{T}, z::Vector{T}, idx_z::IndicesZ, h::T, t::Int) where T 
+    q = @views z[idx_z.q]
+    γ = @views z[idx_z.γ] 
+    b = @views z[idx_z.b]
+
+    # current configuration
+    traj.q[t+2] .= q
+
+    # current velocity
+    traj.v[t+1] .= traj.q[t+2]
+    traj.v[t+1] .-= traj.q[t+1] 
+    traj.v[t+1] ./= h
+
+    # contact impulses
+    traj.γ[t] .= γ 
+    traj.b[t] .= b
+    return nothing
+end
+
+function gradient!(grad::GradientTrajectory{T}, δz::Matrix{T}, idx_z::IndicesZ, idx_θ::Indicesθ, t::Int) where T
+    ∂q3∂q1 = @views δz[idx_z.q, idx_θ.q1]
+    ∂q3∂q2 = @views δz[idx_z.q, idx_θ.q2]
+    ∂q3∂u1 = @views δz[idx_z.q, idx_θ.u]
+    ∂γ1∂q1 = @views δz[idx_z.γ, idx_θ.q1]
+    ∂γ1∂q2 = @views δz[idx_z.γ, idx_θ.q2]
+    ∂γ1∂u1 = @views δz[idx_z.γ, idx_θ.u]
+    ∂b1∂q1 = @views δz[idx_z.b, idx_θ.q1]
+    ∂b1∂q2 = @views δz[idx_z.b, idx_θ.q2]
+    ∂b1∂u1 = @views δz[idx_z.b, idx_θ.u]
+    
+    grad.∂q3∂q1[t] .= ∂q3∂q1
+    grad.∂q3∂q2[t] .= ∂q3∂q2
+    grad.∂q3∂u1[t] .= ∂q3∂u1
+    grad.∂γ1∂q1[t] .= ∂γ1∂q1
+    grad.∂γ1∂q2[t] .= ∂γ1∂q2
+    grad.∂γ1∂u1[t] .= ∂γ1∂u1
+    grad.∂b1∂q1[t] .= ∂b1∂q1
+    grad.∂b1∂q2[t] .= ∂b1∂q2
+    grad.∂b1∂u1[t] .= ∂b1∂u1
+
+    return nothing
+end
+
+function simulate!(traj::Trajectory{T}, grad::GradientTrajectory{T}, ip::InteriorPoint{T}, 
         p::Policy{T}, w::Disturbances{T}, f::Vector{T}, h::T, idx_z::IndicesZ, idx_θ::Indicesθ, N::Int) where T
     for t = 1:N
-        status = step!(traj, ip, p, w, f, h, idx_z, idx_θ, t)
+        status = step!(traj, grad, ip, p, w, f, h, idx_z, idx_θ, t)
         !status && break
     end
 end
 
-function simulate!(s::Simulator{T}, q::Vector{T}, v::Vector{T}) where T
-    s.traj.q[2] .= q
-    s.traj.v[1] .= v
-    # s.traj.q[1] .= s.traj.q[2] - v * h
+function simulate!(s::Simulator{T}, q::Vector{T}, v::Vector{T}; reset_traj=false) where T
+    # reset trajectory
+    reset_traj && reset!(s.traj) 
+    reset_traj && reset!(s.grad)
+
+    # initial configuration and velocity
+    s.traj.q[2] .= q # q2
+    s.traj.v[1] .= v # v1
+
+    #   q1
     s.traj.q[1] .= v 
     s.traj.q[1] .*= s.h
     s.traj.q[1] .*= -1.0
     s.traj.q[1] .+= q
+
+    # simulation length
     N = length(s.traj.u)
-    simulate!(s.traj, s.ip, s.policy, s.dist, s.f, s.h, s.idx_z, s.idx_θ, N)
+
+    # simulate
+    simulate!(s.traj, s.grad, s.ip, s.policy, s.dist, s.f, s.h, s.idx_z, s.idx_θ, N)
 end
 
 function visualize!(vis, s::Simulator; skip=1, fixed_camera=true)
