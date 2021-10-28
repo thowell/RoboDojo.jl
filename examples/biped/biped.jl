@@ -6,6 +6,7 @@ T = 100
 
 s = Simulator(biped, T, h=h)
 simulate!(s, q1, v1)
+using BenchmarkTools
 @benchmark simulate!($s, $q1, $v1)
 
 vis = Visualizer()

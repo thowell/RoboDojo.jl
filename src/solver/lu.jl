@@ -30,7 +30,7 @@ end
 
 function factorize!(s::LUSolver{T}, A::AbstractMatrix{T}) where T
     s.A .= A 
-    fill!(s.ipiv, 0)
+    # fill!(s.ipiv, 0)
     getrf!(s.A, s.ipiv, s.lda, s.info)
 end
 
@@ -46,8 +46,8 @@ function linear_solve!(s::LUSolver{T}, x::Matrix{T}, A::Matrix{T},
     fact && factorize!(s, A)
     x .= b 
     n, m = size(x) 
-    r_idx = 1:size(x, 1)
-    for j = 1:m 
+    r_idx = 1:n
+    for j = 1:m
         xv = @views x[r_idx, j]
         LinearAlgebra.LAPACK.getrs!('N', s.A, s.ipiv, xv)
     end

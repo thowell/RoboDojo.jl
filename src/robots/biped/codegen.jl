@@ -1,8 +1,8 @@
 path = joinpath(@__DIR__, "expr/expr.jld2")
 
 if BIPED_CODEGEN == :load 
-    @load path r_biped rz_biped rθ_biped 
-else
+    @load path expr
+elseif BIPED_CODEGEN == :generate
     nq = biped.nq
     nu = biped.nu
     nw = biped.nw
@@ -153,12 +153,17 @@ else
     rz_biped = Symbolics.build_function(rz, z, θ)[2]
     rθ_biped = Symbolics.build_function(rθ, z, θ)[2]
 
-    @save path r_biped rz_biped rθ_biped
+    expr = Dict{Symbol, Expr}()
+    expr[:r] = r_biped 
+    expr[:rz] = rz_biped 
+    expr[:rθ] = rθ_biped
+
+    @save path expr
 end
 
-r_biped! = eval(r_biped)
-rz_biped! = eval(rz_biped)
-rθ_biped! = eval(rθ_biped)
+r_biped! = eval(expr[:r])
+rz_biped! = eval(expr[:rz])
+rθ_biped! = eval(expr[:rθ])
 
 residual_name(::Biped) = :r_biped!
 jacobian_var_name(::Biped) = :rz_biped! 

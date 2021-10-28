@@ -48,15 +48,14 @@ include(joinpath("../src/robots/quadruped/visuals.jl"))
 include(joinpath("../src/robots/box/model.jl"))
 include(joinpath("../src/robots/box/visuals.jl"))
 
-# code generation
-BIPED_CODEGEN = :generate
-include(joinpath("../src/robots/biped/codegen.jl"))
-QUADRUPED_CODEGEN = :generate
-include(joinpath("../src/robots/quadruped/codegen.jl"))
-HOPPER_CODEGEN = :generate
-include(joinpath("../src/robots/hopper/codegen.jl"))
-# BOX_CODEGEN = :generate
-# include(joinpath("../src/robots/box/codegen.jl"))
+HOPPER_CODEGEN = :load
+include(joinpath(@__DIR__, "../src/robots/hopper/codegen.jl"))
+
+BIPED_CODEGEN = :load
+include(joinpath(@__DIR__, "../src/robots/biped/codegen.jl"))
+
+QUADRUPED_CODEGEN = :load
+include(joinpath(@__DIR__, "../src/robots/quadruped/codegen.jl"))
 
 # Policy
 include(joinpath("../src/policy/raibert.jl"))

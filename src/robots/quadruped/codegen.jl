@@ -1,7 +1,7 @@
 path = joinpath(@__DIR__, "expr/expr.jld2")
 
 if QUADRUPED_CODEGEN == :load 
-    @load path r_quadruped rz_quadruped rθ_quadruped
+    @load path expr
 else
     nq = quadruped.nq
     nu = quadruped.nu
@@ -170,12 +170,17 @@ else
     rz_quadruped = Symbolics.build_function(rz, z, θ)[2]
     rθ_quadruped = Symbolics.build_function(rθ, z, θ)[2]
 
-    @save path r_quadruped rz_quadruped rθ_quadruped
+    expr = Dict{Symbol, Expr}()
+    expr[:r] = r_quadruped 
+    expr[:rz] = rz_quadruped 
+    expr[:rθ] = rθ_quadruped
+
+    @save path expr
 end
 
-r_quadruped! = eval(r_quadruped)
-rz_quadruped! = eval(rz_quadruped)
-rθ_quadruped! = eval(rθ_quadruped)
+r_quadruped! = eval(expr[:r])
+rz_quadruped! = eval(expr[:rz])
+rθ_quadruped! = eval(expr[:rθ])
 
 residual_name(::Quadruped) = :r_quadruped!
 jacobian_var_name(::Quadruped) = :rz_quadruped! 

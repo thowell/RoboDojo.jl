@@ -20,7 +20,6 @@ function Simulator(model, T;
         residual=eval(residual_name(model)), 
         jacobian_z=eval(jacobian_var_name(model)), 
         jacobian_θ=eval(jacobian_data_name(model)),
-        diff_sol=false,
         opts=InteriorPointOptions(
             undercut=Inf,
             γ_reg=0.1,
@@ -28,7 +27,7 @@ function Simulator(model, T;
             κ_tol=1e-8,  
             max_ls=25,
             ϵ_min=0.25,
-            diff_sol=diff_sol,
+            diff_sol=false,
             verbose=false))
 
     idx_z = indices_z(model)
@@ -73,7 +72,7 @@ function step!(traj::Trajectory{T}, grad::GradientTrajectory{T}, ip::InteriorPoi
 
     # solve
     status = interior_point_solve!(ip)
-
+    differentiate_solution!(ip)
     # status check
     if !status 
         @show norm(ip.r) 
@@ -85,7 +84,7 @@ function step!(traj::Trajectory{T}, grad::GradientTrajectory{T}, ip::InteriorPoi
     solution!(traj, ip.z, idx_z, h, t)
 
     # cache gradients
-    ip.opts.diff_sol && gradient!(grad, ip.δz, idx_z, idx_θ, t)
+    ip.opts.diff_sol && gradient!(grad, ip.δz, idx_z, idx_θ, h, t)
 
     return true
 end
@@ -109,7 +108,7 @@ function solution!(traj::Trajectory{T}, z::Vector{T}, idx_z::IndicesZ, h::T, t::
     return nothing
 end
 
-function gradient!(grad::GradientTrajectory{T}, δz::Matrix{T}, idx_z::IndicesZ, idx_θ::Indicesθ, t::Int) where T
+function gradient!(grad::GradientTrajectory{T}, δz::Matrix{T}, idx_z::IndicesZ, idx_θ::Indicesθ, h::T, t::Int) where T
     ∂q3∂q1 = @views δz[idx_z.q, idx_θ.q1]
     ∂q3∂q2 = @views δz[idx_z.q, idx_θ.q2]
     ∂q3∂u1 = @views δz[idx_z.q, idx_θ.u]
@@ -120,9 +119,26 @@ function gradient!(grad::GradientTrajectory{T}, δz::Matrix{T}, idx_z::IndicesZ,
     ∂b1∂q2 = @views δz[idx_z.b, idx_θ.q2]
     ∂b1∂u1 = @views δz[idx_z.b, idx_θ.u]
     
+    # configurations
     grad.∂q3∂q1[t] .= ∂q3∂q1
     grad.∂q3∂q2[t] .= ∂q3∂q2
     grad.∂q3∂u1[t] .= ∂q3∂u1
+
+    # velocities
+    grad.∂v2∂q1[t] .= ∂q3∂q1 
+    grad.∂v2∂q1[t] ./= h
+
+    grad.∂v2∂q2[t] .= ∂q3∂q2
+    n = size(grad.∂v2∂q2[t], 1) 
+    for i = 1:n
+        grad.∂v2∂q2[t][i, i] -= 1.0 
+    end
+    grad.∂v2∂q2[t] ./= h
+
+    grad.∂v2∂u1[t] .= ∂q3∂u1 
+    grad.∂v2∂u1[t] ./= h
+
+    # contact impulses
     grad.∂γ1∂q1[t] .= ∂γ1∂q1
     grad.∂γ1∂q2[t] .= ∂γ1∂q2
     grad.∂γ1∂u1[t] .= ∂γ1∂u1

@@ -86,7 +86,7 @@ mutable struct InteriorPoint{T,R,RZ,Rθ}
     θ::Vector{T}               # problem data
     solver::LinearSolver
     z_reg::Vector{T}           # current point w/ regularization on cone variables
-    reg_val::T
+    reg_val::Vector{T}
     iterations::Int
     opts::InteriorPointOptions{T}
     κ::Vector{T}
@@ -132,7 +132,7 @@ function interior_point(z, θ;
         θ,
         eval(opts.solver)(rz),
         zero(z),
-        0.0,
+        zeros(1),
         0,
         opts,
         zeros(1),
@@ -216,10 +216,10 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
             regularization!(ip, κ_vio, κ_reg, γ_reg)
 
             # compute residual Jacobian
-            rz!(ip, rz, z, θ, reg=ip.reg_val) # this is not adapted to the second order cone
+            rz!(ip, rz, z, θ, reg=ip.reg_val[1]) # this is not adapted to the second order cone
 
             # compute step
-            linear_solve!(solver, Δ, rz, r, reg=ip.reg_val)
+            linear_solve!(solver, Δ, rz, r, reg=ip.reg_val[1])
 
             α_ort = ort_step_length(z, Δ, ortz, ortΔ, τ=1.0)
             α_soc = soc_step_length(z, Δ, socz, socΔ, zsoc, Δsoc, ρv, soce, τ=1.0, verbose=false)
@@ -233,7 +233,7 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
             general_correction_term!(r, Δ, ortr, socr, sorci, ortΔ, socΔ)
 
             # Compute corrector search direction
-            linear_solve!(solver, Δ, rz, r, reg=ip.reg_val, fact=false)
+            linear_solve!(solver, Δ, rz, r, reg=ip.reg_val[1], fact=false)
 
             τ = max(0.95, 1 - max(r_vio, κ_vio)^2)
 
@@ -270,7 +270,7 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
     if (r_vio < r_tol) && (κ_vio < κ_tol)
         # differentiate solution
         regularization!(ip, κ_vio, ip.opts.γ_reg)
-        diff_sol && differentiate_solution!(ip, reg=ip.reg_val)
+        diff_sol && differentiate_solution!(ip, reg=ip.reg_val[1])
         return true
     else
         return false
@@ -315,13 +315,13 @@ function general_correction_term!(r::AbstractVector{T}, Δ::AbstractVector{T},
 end
 
 function regularization!(ip::InteriorPoint, κ_vio::T, κ_reg::T, γ_reg::T) where T 
-    ip.reg_val = κ_vio < κ_reg ? κ_vio * γ_reg : 0.0
+    ip.reg_val[1] = κ_vio < κ_reg ? κ_vio * γ_reg : 0.0
     return nothing
 end
 
 function regularization!(ip::InteriorPoint, κ_vio::T, γ_reg::T) where T 
     reg = κ_vio * γ_reg
-    reg > ip.reg_val && (ip.reg_val = reg)
+    reg > ip.reg_val[1] && (ip.reg_val[1] = reg)
     return nothing
 end
 

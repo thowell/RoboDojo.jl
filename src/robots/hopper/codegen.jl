@@ -1,7 +1,7 @@
 path = joinpath(@__DIR__, "expr/expr.jld2")
 
 if HOPPER_CODEGEN == :load 
-    @load path r_hopper rz_hopper rθ_hopper
+    JLD2.@load path expr
 elseif HOPPER_CODEGEN == :generate
     nq = hopper.nq
     nu = hopper.nu
@@ -116,12 +116,17 @@ elseif HOPPER_CODEGEN == :generate
     rz_hopper = Symbolics.build_function(rz, z, θ)[2]
     rθ_hopper = Symbolics.build_function(rθ, z, θ)[2]
 
-    @save path r_hopper rz_hopper rθ_hopper
+    expr = Dict{Symbol, Expr}()
+    expr[:r] = r_hopper 
+    expr[:rz] = rz_hopper 
+    expr[:rθ] = rθ_hopper
+
+    JLD2.@save path expr
 end
 
-r_hopper! = eval(r_hopper)
-rz_hopper! = eval(rz_hopper)
-rθ_hopper! = eval(rθ_hopper)
+r_hopper! = eval(expr[:r])
+rz_hopper! = eval(expr[:rz])
+rθ_hopper! = eval(expr[:rθ])
 
 residual_name(::Hopper) = :r_hopper!
 jacobian_var_name(::Hopper) = :rz_hopper! 

@@ -16,8 +16,9 @@ function indices_z(model::Hopper)
 end
 
 function indices_optimization(model::Hopper) 
+    nq = model.nq
     nz = num_var(model) 
-    ny = nz - model.nq 
+    ny = nz - nq 
 
     IndicesOptimization(
         nz, 
