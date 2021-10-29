@@ -2,7 +2,7 @@
 # Indices
 ################################################################################
 
-mutable struct IndicesOptimization 
+struct IndicesOptimization 
 	# Set the residual to 0
 	# r(z) = 0
 	# z <- z + Δz
@@ -28,6 +28,7 @@ mutable struct IndicesOptimization
 	dyn::Vector{Int} # indices of the residual associated with the dynamics constraints in r
 	rst::Vector{Int} # indices of the residual associated with the remaining constraints in r
 	bil::Vector{Int} # indices of the residual associated with the bilinear constraints in r
+	alt::Vector{Int} # indices of the residual associated with the altitude constraints in r
 end
 
 function IndicesOptimization()
@@ -38,6 +39,6 @@ function IndicesOptimization()
 	s = IndicesOptimization(
 		0, 0, 0,
 		v1, v1, v2, v2, v3, v3,
-		v1, v1, v2, v3, v1, v1, v1)
+		v1, v1, v2, v3, v1, v1, v1, v1)
 	return s
 end
