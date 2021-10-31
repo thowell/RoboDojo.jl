@@ -1,9 +1,10 @@
-function second_order_cone_product(z, s)
-    n = length(z)
-    SVector{n}([z' * s; z[1] * view(s, 2:n) + s[1] * view(z, 2:n)])
-end
 
-function second_order_cone_product!(a, z, s; reset=false) 
+"""
+second-order cone product 
+"""
+cone_product(a, b) = [dot(a, b); a[1] * b[2:end] + b[1] * a[2:end]]
+
+function cone_product!(a, z, s; reset=false) 
     reset && fill!(a, 0.0)
     n = length(a)
     a[1] += z' * s

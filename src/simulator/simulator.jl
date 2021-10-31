@@ -14,8 +14,8 @@ end
 
 function SimulatorStatistics()
     dt = zeros(0)
-    μ_dt = zeros(0.0)
-    σ_dt = zeros(0.0)
+    μ_dt = zeros(0)
+    σ_dt = zeros(0)
     return SimulatorStatistics(dt, μ_dt, σ_dt)
 end
 
@@ -40,7 +40,7 @@ struct Simulator{T,R,RZ,Rθ,M<:Model{T},P<:Policy{T},D<:Disturbances{T}}
     f::Vector{T}
     h::T
     opts::SimulatorOptions{T} 
-    stats::SimulatorStats{T}
+    stats::SimulatorStatistics{T}
 end
 
 function Simulator(model, T; 
@@ -65,7 +65,7 @@ function Simulator(model, T;
 
     idx_z = indices_z(model)
     idx_θ = indices_θ(model, nf=length(f))
-    idx_opt = indices_optimization(model)
+    idx_opt = indices_simulator(model)
     
     nz = num_var(model) 
     nθ = num_data(model, nf=length(f))
@@ -89,7 +89,7 @@ function Simulator(model, T;
     traj = Trajectory(model, T)
     grad = GradientTrajectory(model, T)
 
-    Simulator(model, policy, dist, traj, grad, ip, idx_z, idx_θ, f, h, opts, stats)
+    Simulator(model, policy, dist, traj, grad, ip, idx_z, idx_θ, f, h, sim_opts, stats)
 end
 
 function step!(traj::Trajectory{T}, grad::GradientTrajectory{T}, ip::InteriorPoint{T}, p::Policy{T}, w::Disturbances{T}, f::Vector{T}, h::T, idx_z::IndicesZ, idx_θ::Indicesθ, t::Int) where T

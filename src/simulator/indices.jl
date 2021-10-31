@@ -31,8 +31,6 @@ function initialize_z!(z, idx::IndicesZ, q)
     z[idx.sb] .= 0.1
 end
 
-# @benchmark initialize_z!($z0, $idx_x, $q1)
-
 struct Indicesθ 
     q1::Vector{Int}
     q2::Vector{Int} 
@@ -66,19 +64,13 @@ function initialize_θ!(θ, idx, q1, q2, u, w, f, h)
     θ[idx.h] .= h
 end
 
-# @benchmark initialize_θ!($θ0, $idx_θ, $q1, $q2, $u0, $w0, $model.friction_body_world, $model.friction_foot_world, $h) 
-
-function indices_optimization(model) 
+function indices_simulator(model) 
     nq = model.nq
     nz = num_var(model) 
-    ny = nz - nq 
     nc = model.nc
     IndicesOptimization(
         nz, 
         nz, 
-        ny,
-        collect(1:nq),
-        collect(1:nq), 
         [collect(nq .+ (1:nc)), collect(nq + nc .+ (1:nc))],
         [collect(nq .+ (1:nc)), collect(nq + nc .+ (1:nc))],
         [
@@ -93,7 +85,6 @@ function indices_optimization(model)
         collect(nq + nc + nc + nc .+ (1:nc)),
         collect(nq + nc + nc + nc + nc .+ (1:(2 * nc))),
         [collect(nq + nc + nc + nc + nc + (i - 1) * 2 .+ (1:2)) for i = 1:nc],
-        collect(1:nq),
-        collect(nq .+ (1:(nc + nc + nc))),
-        collect(nq + nc + nc + nc .+ (1:(3 * nc))))
+        collect(nq + nc + nc + nc .+ (1:(3 * nc))),
+        EmptyStructure())
 end

@@ -1,9 +1,4 @@
 """
-    cone product for second-order cone
-"""
-cone_product(a, b) = [dot(a, b); a[1] * b[2:end] + b[1] * a[2:end]]
-
-"""
     rotation matrix: z-axis 
 """
 function rotation_matrix(x) 

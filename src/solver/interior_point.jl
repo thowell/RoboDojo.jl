@@ -109,13 +109,15 @@ function interior_point(z, θ;
 
     rz!(rz, z, θ) # compute Jacobian for pre-factorization
     num_data = length(θ)
-
     zort = [zeros(length(idx.ortz[1])), zeros(length(idx.ortz[2]))]
     Δort = [zeros(length(idx.ortΔ[1])), zeros(length(idx.ortΔ[2]))]
-    zsoc = [[zeros(length(i)) for i in idx.socri], [zeros(length(i)) for i in idx.socri]]
-    Δsoc = [[zeros(length(i)) for i in idx.socri], [zeros(length(i)) for i in idx.socri]]
-    ρv = [[zeros(length(i) - 1) for i in idx.socri], [zeros(length(i) - 1) for i in idx.socri]]
-    idx_soce = [[collect(2:length(i)) for i in idx.socri], [collect(2:length(i)) for i in idx.socri]]
+
+    zsoc = [[zeros(length(i[1])), zeros(length(i[2]))] for i in idx.socz]
+    Δsoc = [[zeros(length(i[1])), zeros(length(i[2]))] for i in idx.socΔ]
+
+    ρv = [[zeros(max(0, length(i[1]) - 1)), zeros(max(0, length(i[2]) - 1))] for i in idx.socΔ]
+
+    idx_soce = [[collect(2:length(i)), collect(2:length(i))] for i in idx.socri]
 
     InteriorPoint{typeof.([z[1], r, rz, rθ])...}(
         s,
@@ -187,7 +189,6 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
     ortΔ = idx.ortΔ
     socz = idx.socz
     socΔ = idx.socΔ
-    bil = idx.bil
     ortr = idx.ortr
     socr = idx.socr
     sorci = idx.socri
@@ -242,7 +243,7 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
             α = min(α_ort, α_soc)
 
             # reduce norm of residual
-            candidate_point!(z, s, z, Δ, α)
+            candidate_point!(z, s, z, Δ, α) #TODO: z̄
 
             κ_vio_cand = 0.0
             r_vio_cand = 0.0
@@ -305,11 +306,11 @@ function general_correction_term!(r::AbstractVector{T}, Δ::AbstractVector{T},
     rortr = @views r[ortr]
     rortr .+= Δo1 .* Δo2
 
-    for i in eachindex(socΔ[1]) 
-        Δso1 = @views Δ[socΔ[1][i]]
-        Δso2 = @views Δ[socΔ[2][i]]
+    for i in eachindex(socΔ) 
+        Δso1 = @views Δ[socΔ[i][1]]
+        Δso2 = @views Δ[socΔ[i][2]]
         rsocri = @views r[socri[i]]
-        second_order_cone_product!(rsocri, Δso2, Δso1, reset=false)
+        cone_product!(rsocri, Δso2, Δso1, reset=false)
     end
     return nothing
 end
@@ -326,11 +327,13 @@ function regularization!(ip::InteriorPoint, κ_vio::T, γ_reg::T) where T
 end
 
 function residual_violation(ip::InteriorPoint, r::AbstractVector{T}) where {T}
-    dyn = ip.idx.dyn
-    rst = ip.idx.rst
-    rdyn = @views r[dyn]
-    rrst = @views r[rst]
-    max(norm(rdyn, Inf), norm(rrst, Inf))
+    # dyn = ip.idx.dyn
+    # rst = ip.idx.rst
+    # rdyn = @views r[dyn]
+    # rrst = @views r[rst]
+    # max(norm(rdyn, Inf), norm(rrst, Inf))
+    req = @views r[ip.idx.equr]
+    return norm(req, Inf)
 end
 
 function centering(z::AbstractVector{T}, Δaff::AbstractVector{T},
@@ -360,22 +363,22 @@ function centering(z::AbstractVector{T}, Δaff::AbstractVector{T},
 
     μaff = Δort[1]' * Δort[2]
     # soc
-    for i in eachindex(socz[1])
-        zs1 = @views z[socz[1][i]]
-        zs2 = @views z[socz[2][i]]
-        Δs1 = @views Δaff[socΔ[1][i]] 
-        Δs2 = @views Δaff[socΔ[2][i]]
+    for i in eachindex(socz)
+        zs1 = @views z[socz[i][1]]
+        zs2 = @views z[socz[i][2]]
+        Δs1 = @views Δaff[socΔ[i][1]] 
+        Δs2 = @views Δaff[socΔ[i][2]]
 
-        Δsoc[1][i] .= Δs1 
-        Δsoc[1][i] .*= -αaff 
-        Δsoc[1][i] .+= zs1 
+        Δsoc[i][1] .= Δs1 
+        Δsoc[i][1] .*= -αaff 
+        Δsoc[i][1] .+= zs1 
 
-        Δsoc[2][i] .= Δs2 
-        Δsoc[2][i] .*= -αaff 
-        Δsoc[2][i] .+= zs2 
+        Δsoc[i][2] .= Δs2 
+        Δsoc[i][2] .*= -αaff 
+        Δsoc[i][2] .+= zs2 
 
         μ += zs1' * zs2
-        μaff += Δsoc[1][i]' * Δsoc[2][i]
+        μaff += Δsoc[i][1]' * Δsoc[i][1]
     end
     μ /= n
     μaff /= n

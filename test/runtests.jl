@@ -9,5 +9,7 @@ using BenchmarkTools
 
 # Solver
 include("solver/lu.jl")
+include("solver/random_qp.jl")
+
 
 

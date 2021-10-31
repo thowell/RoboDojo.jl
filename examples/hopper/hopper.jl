@@ -14,6 +14,7 @@ s.ip.opts.diff_sol = false
 simulate!(s, q1, v1, reset_traj=false)
 @code_warntype simulate!(s, q1, v1, reset_traj=false)
 
+using BenchmarkTools
 @benchmark simulate!($s, $q1, $v1)
 
 rank(s.ip.rz)
