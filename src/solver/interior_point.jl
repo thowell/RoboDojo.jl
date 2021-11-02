@@ -86,7 +86,7 @@ mutable struct InteriorPoint{T,R,RZ,Rθ}
     θ::Vector{T}               # problem data
     solver::LinearSolver
     z_reg::Vector{T}           # current point w/ regularization on cone variables
-    reg_val::T
+    reg_val::Vector{T}
     iterations::Int
     opts::InteriorPointOptions{T}
     κ::Vector{T}
@@ -112,10 +112,10 @@ function interior_point(z, θ;
 
     zort = [zeros(length(idx.ortz[1])), zeros(length(idx.ortz[2]))]
     Δort = [zeros(length(idx.ortΔ[1])), zeros(length(idx.ortΔ[2]))]
-    zsoc = [[zeros(length(i)) for i in idx.socri], [zeros(length(i)) for i in idx.socri]]
-    Δsoc = [[zeros(length(i)) for i in idx.socri], [zeros(length(i)) for i in idx.socri]]
-    ρv = [[zeros(length(i) - 1) for i in idx.socri], [zeros(length(i) - 1) for i in idx.socri]]
-    idx_soce = [[collect(2:length(i)) for i in idx.socri], [collect(2:length(i)) for i in idx.socri]]
+    zsoc = [[zeros(length(i)), zeros(length(i))] for i in idx.socri]
+    Δsoc = [[zeros(length(i)), zeros(length(i))] for i in idx.socri]
+    ρv = [[zeros(max(0, length(i) - 1)), zeros(max(0, length(i) - 1))] for i in idx.socri]
+    idx_soce = [[collect(2:length(i)), collect(2:length(i))] for i in idx.socri]
 
     InteriorPoint{typeof.([z[1], r, rz, rθ])...}(
         s,
@@ -132,7 +132,7 @@ function interior_point(z, θ;
         θ,
         eval(opts.solver)(rz),
         zero(z),
-        0.0,
+        zeros(1),
         0,
         opts,
         zeros(1),
@@ -175,6 +175,9 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
     Δ = ip.Δ
     θ = ip.θ
 
+    # regularization
+    ip.reg_val[1] = 0.0 # reset
+
     zort = ip.zort 
     Δort = ip.Δort
     zsoc = ip.zsoc 
@@ -216,10 +219,10 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
             regularization!(ip, κ_vio, κ_reg, γ_reg)
 
             # compute residual Jacobian
-            rz!(ip, rz, z, θ)#, reg=ip.reg_val) # this is not adapted to the second order cone
+            rz!(ip, rz, z, θ, reg=ip.reg_val[1]) # this is not adapted to the second-order cone
 
             # compute step
-            linear_solve!(solver, Δ, rz, r, reg=ip.reg_val)
+            linear_solve!(solver, Δ, rz, r, reg=ip.reg_val[1])
 
             α_ort = ort_step_length(z, Δ, ortz, ortΔ, τ=1.0)
             α_soc = soc_step_length(z, Δ, socz, socΔ, zsoc, Δsoc, ρv, soce, τ=1.0, verbose=false)
@@ -233,7 +236,7 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
             general_correction_term!(r, Δ, ortr, socr, sorci, ortΔ, socΔ)
 
             # Compute corrector search direction
-            linear_solve!(solver, Δ, rz, r, reg=ip.reg_val, fact=false)
+            linear_solve!(solver, Δ, rz, r, reg=ip.reg_val[1], fact=false)
 
             τ = max(0.95, 1 - max(r_vio, κ_vio)^2)
 
@@ -269,8 +272,8 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
 
     if (r_vio < r_tol) && (κ_vio < κ_tol)
         # differentiate solution
-        # regularization!(ip, κ_vio, ip.opts.γ_reg)
-        diff_sol && differentiate_solution!(ip)##, reg=ip.reg_val)
+        regularization!(ip, κ_vio, ip.opts.γ_reg)
+        diff_sol && differentiate_solution!(ip, reg=ip.reg_val[1])
         return true
     else
         return false
@@ -305,9 +308,10 @@ function general_correction_term!(r::AbstractVector{T}, Δ::AbstractVector{T},
     rortr = @views r[ortr]
     rortr .+= Δo1 .* Δo2
 
-    for i in eachindex(socΔ[1]) 
-        Δso1 = @views Δ[socΔ[1][i]]
-        Δso2 = @views Δ[socΔ[2][i]]
+    num_cone = length(socri)
+    for i = 1:num_cone
+        Δso1 = @views Δ[socΔ[i][1]]
+        Δso2 = @views Δ[socΔ[i][2]]
         rsocri = @views r[socri[i]]
         second_order_cone_product!(rsocri, Δso2, Δso1, reset=false)
     end
@@ -315,22 +319,19 @@ function general_correction_term!(r::AbstractVector{T}, Δ::AbstractVector{T},
 end
 
 function regularization!(ip::InteriorPoint, κ_vio::T, κ_reg::T, γ_reg::T) where T 
-    ip.reg_val = κ_vio < κ_reg ? κ_vio * γ_reg : 0.0
+    ip.reg_val[1] = κ_vio < κ_reg ? κ_vio * γ_reg : 0.0
     return nothing
 end
 
 function regularization!(ip::InteriorPoint, κ_vio::T, γ_reg::T) where T 
     reg = κ_vio * γ_reg
-    reg > ip.reg_val && (ip.reg_val = reg)
+    reg > ip.reg_val[1] && (ip.reg_val[1] = reg)
     return nothing
 end
 
 function residual_violation(ip::InteriorPoint, r::AbstractVector{T}) where {T}
-    dyn = ip.idx.dyn
-    rst = ip.idx.rst
-    rdyn = @views r[dyn]
-    rrst = @views r[rst]
-    max(norm(rdyn, Inf), norm(rrst, Inf))
+    req = @views r[ip.idx.equr]
+    return norm(req, Inf)
 end
 
 function centering(z::AbstractVector{T}, Δaff::AbstractVector{T},
@@ -342,7 +343,7 @@ function centering(z::AbstractVector{T}, Δaff::AbstractVector{T},
     # See Section 5.1.3 in CVXOPT
     # μ only depends on the dot products (no cone product)
     # The CVXOPT linear and quadratic cone program solvers
-    n = 10#length(ortz[1]) + sum(length.(socΔ[1]))
+    n = 10 # length(ortz[1]) + sum(length.(socΔ[1]))
     # ineq
     zo1 = @views z[ortz[1]]
     zo2 = @views z[ortz[2]]
@@ -359,23 +360,25 @@ function centering(z::AbstractVector{T}, Δaff::AbstractVector{T},
     Δort[2] .+= zo2 
 
     μaff = Δort[1]' * Δort[2]
+
     # soc
-    for i in eachindex(socz[1])
-        zs1 = @views z[socz[1][i]]
-        zs2 = @views z[socz[2][i]]
-        Δs1 = @views Δaff[socΔ[1][i]] 
-        Δs2 = @views Δaff[socΔ[2][i]]
+    num_cone = length(socz)
+    for i = 1:num_cone
+        zs1 = @views z[socz[i][1]]
+        zs2 = @views z[socz[i][2]]
+        Δs1 = @views Δaff[socΔ[i][1]] 
+        Δs2 = @views Δaff[socΔ[i][2]]
 
-        Δsoc[1][i] .= Δs1 
-        Δsoc[1][i] .*= -αaff 
-        Δsoc[1][i] .+= zs1 
+        Δsoc[i][1] .= Δs1 
+        Δsoc[i][1] .*= -αaff 
+        Δsoc[i][1] .+= zs1 
 
-        Δsoc[2][i] .= Δs2 
-        Δsoc[2][i] .*= -αaff 
-        Δsoc[2][i] .+= zs2 
+        Δsoc[i][2] .= Δs2 
+        Δsoc[i][2] .*= -αaff 
+        Δsoc[i][2] .+= zs2 
 
         μ += zs1' * zs2
-        μaff += Δsoc[1][i]' * Δsoc[2][i]
+        μaff += Δsoc[i][1]' * Δsoc[i][2]
     end
     μ /= n
     μaff /= n
@@ -384,8 +387,7 @@ function centering(z::AbstractVector{T}, Δaff::AbstractVector{T},
 end
 
 function bilinear_violation(ip::InteriorPoint, r::AbstractVector{T}) where {T}
-    bil = ip.idx.bil
-    rbil = @views r[bil]
+    rbil = @views r[ip.idx.bil]
     return norm(rbil, Inf)
 end
 
@@ -424,7 +426,8 @@ function soc_step_length(z::AbstractVector{T}, Δ::AbstractVector{T},
     ρv::Vector{Vector{Vector{T}}}, idx::Vector{Vector{Vector{Int}}};
     τ::T=0.99, verbose::Bool=false) where {T}
     α = 1.0
-    for i in eachindex(socz) # primal-dual
+    num_cone = length(socz)
+    for i = 1:num_cone # primal-dual
         for j in eachindex(socz[i]) # number of cones
             # we need -Δ here because we will taking the step x - α Δ
             zsoc[i][j] .= @views z[socz[i][j]]
@@ -440,7 +443,8 @@ function ort_step_length(z::AbstractVector{T}, Δ::AbstractVector{T},
 		ortz::Vector{Vector{Int}}, ortΔ::Vector{Vector{Int}};
         τ::T=0.9995) where {T}
     α = 1.0
-    for i in eachindex(ortz) # primal-dual
+    num_cone = length(ortz)
+    for i = 1:num_cone # primal-dual
         for j in eachindex(ortz[i])
             k = ortz[i][j] # z
             ks = ortΔ[i][j] # Δz

@@ -10,11 +10,8 @@ mutable struct IndicesOptimization
 	# Dimensions
 	nz::Int # dimension of the optimization variable z
 	nΔ::Int # dimension of the optimization variable Δz and of the residual r
-	ny::Int # dimension of the bilinear vaiables
 
 	# Variables
-	dynz::Vector{Int} # indices of the variables associated with the dynamics constraints in z
-	dynΔ::Vector{Int} # indices of the variables associated with the dynamics constraints in Δz
 	ortz::Vector{Vector{Int}} # indices of the variables associated with the positive ORThant constraints in z
 	ortΔ::Vector{Vector{Int}} # indices of the variables associated with the positive ORThant constraints in Δz
 	socz::Vector{Vector{Vector{Int}}} # indices of the variables associated with the Second Order Cone constraints in z
@@ -25,8 +22,6 @@ mutable struct IndicesOptimization
 	ortr::Vector{Int} # indices of the residual associated with the positive ORThant constraints in r
 	socr::Vector{Int} # indices of the residual associated with the Second-Order Constraints in r
 	socri::Vector{Vector{Int}} # indices of the residual associated with individual Second-Order Cone constraints in r
-	dyn::Vector{Int} # indices of the residual associated with the dynamics constraints in r
-	rst::Vector{Int} # indices of the residual associated with the remaining constraints in r
 	bil::Vector{Int} # indices of the residual associated with the bilinear constraints in r
 end
 
@@ -36,8 +31,8 @@ function IndicesOptimization()
 	v3 = Vector{Vector{Vector{Int}}}()
 
 	s = IndicesOptimization(
-		0, 0, 0,
-		v1, v1, v2, v2, v3, v3,
-		v1, v1, v2, v3, v1, v1, v1)
+		0, 0,
+		v2, v2, v3, v3,
+		v1, v1, v1, v2, v1)
 	return s
 end

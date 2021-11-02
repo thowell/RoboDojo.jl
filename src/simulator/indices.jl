@@ -71,29 +71,17 @@ end
 function indices_optimization(model) 
     nq = model.nq
     nz = num_var(model) 
-    ny = nz - model.nq 
     nc = model.nc
     IndicesOptimization(
         nz, 
         nz, 
-        ny,
-        collect(1:nq),
-        collect(1:nq), 
         [collect(nq .+ (1:nc)), collect(nq + nc .+ (1:nc))],
         [collect(nq .+ (1:nc)), collect(nq + nc .+ (1:nc))],
-        [
-        [collect([nq + nc + nc + i, nq + nc + nc + nc + i]) for i = 1:nc], 
-        [collect([nq + nc + nc + nc + nc + i, nq + nc + nc + nc + nc + nc + i]) for i = 1:nc]
-        ],
-        [
-        [collect([nq + nc + nc + i, nq + nc + nc + nc + i]) for i = 1:nc], 
-        [collect([nq + nc + nc + nc + nc + i, nq + nc + nc + nc + nc + nc + i]) for i = 1:nc]
-        ],
+        [[collect([nq + nc + nc + i, nq + nc + nc + nc + i]), collect([nq + nc + nc + nc + nc + i, nq + nc + nc + nc + nc + nc + i])] for i = 1:nc], 
+        [[collect([nq + nc + nc + i, nq + nc + nc + nc + i]), collect([nq + nc + nc + nc + nc + i, nq + nc + nc + nc + nc + nc + i])] for i = 1:nc], 
         collect(1:(nq + nc + nc + nc)),
         collect(nq + nc + nc + nc .+ (1:nc)),
         collect(nq + nc + nc + nc + nc .+ (1:(2 * nc))),
         [collect(nq + nc + nc + nc + nc + (i - 1) * 2 .+ (1:2)) for i = 1:nc],
-        collect(1:nq),
-        collect(nq .+ (1:(nc + nc + nc))),
         collect(nq + nc + nc + nc .+ (1:(3 * nc))))
 end
