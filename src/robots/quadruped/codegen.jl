@@ -1,6 +1,6 @@
 path = joinpath(@__DIR__, "expr/expr.jld2")
 
-if QUADRUPED_CODEGEN == :load 
+if false#QUADRUPED_CODEGEN == :load 
     @load path r_quadruped rz_quadruped rθ_quadruped
 else
     nq = quadruped.nq

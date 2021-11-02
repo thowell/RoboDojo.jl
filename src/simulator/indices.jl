@@ -69,6 +69,7 @@ end
 # @benchmark initialize_θ!($θ0, $idx_θ, $q1, $q2, $u0, $w0, $model.friction_body_world, $model.friction_foot_world, $h) 
 
 function indices_optimization(model) 
+    nq = model.nq
     nz = num_var(model) 
     ny = nz - model.nq 
     nc = model.nc

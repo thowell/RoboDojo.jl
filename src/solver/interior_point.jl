@@ -216,7 +216,7 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
             regularization!(ip, κ_vio, κ_reg, γ_reg)
 
             # compute residual Jacobian
-            rz!(ip, rz, z, θ, reg=ip.reg_val) # this is not adapted to the second order cone
+            rz!(ip, rz, z, θ)#, reg=ip.reg_val) # this is not adapted to the second order cone
 
             # compute step
             linear_solve!(solver, Δ, rz, r, reg=ip.reg_val)
@@ -269,8 +269,8 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
 
     if (r_vio < r_tol) && (κ_vio < κ_tol)
         # differentiate solution
-        regularization!(ip, κ_vio, ip.opts.γ_reg)
-        diff_sol && differentiate_solution!(ip, reg=ip.reg_val)
+        # regularization!(ip, κ_vio, ip.opts.γ_reg)
+        diff_sol && differentiate_solution!(ip)##, reg=ip.reg_val)
         return true
     else
         return false
@@ -462,7 +462,7 @@ function differentiate_solution!(ip::InteriorPoint; reg=0.0)
     δzs = ip.δzs
 
     rz!(ip, rz, z, θ, reg = reg)
-    rθ!(ip, rθ, z, θ)
+    # rθ!(ip, rθ, z, θ)
 
     linear_solve!(ip.solver, δzs, rz, rθ, reg=reg)
     δzs .*= -1.0

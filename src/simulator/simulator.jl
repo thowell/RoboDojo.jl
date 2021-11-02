@@ -146,6 +146,9 @@ function simulate!(s::Simulator{T}, q::Vector{T}, v::Vector{T}; reset_traj=false
     reset_traj && reset!(s.traj) 
     reset_traj && reset!(s.grad)
 
+    # reset solver
+    
+
     # initial configuration and velocity
     s.traj.q[2] .= q # q2
     s.traj.v[1] .= v # v1

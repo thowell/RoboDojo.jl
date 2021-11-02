@@ -1,6 +1,6 @@
 path = joinpath(@__DIR__, "expr/expr.jld2")
-
-if BIPED_CODEGEN == :load 
+BIPED_CODEGEN = :load
+if false#BIPED_CODEGEN == :load 
     @load path r_biped rz_biped rθ_biped 
 else
     nq = biped.nq
