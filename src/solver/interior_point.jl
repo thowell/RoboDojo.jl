@@ -466,7 +466,7 @@ function differentiate_solution!(ip::InteriorPoint; reg=0.0)
     δzs = ip.δzs
 
     rz!(ip, rz, z, θ, reg = reg)
-    # rθ!(ip, rθ, z, θ)
+    # rθ!(ip, rθ, z, θ) #TODO fix this method
 
     linear_solve!(ip.solver, δzs, rz, rθ, reg=reg)
     δzs .*= -1.0
