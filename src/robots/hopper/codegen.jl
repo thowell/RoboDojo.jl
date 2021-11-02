@@ -2,7 +2,7 @@ path = joinpath(@__DIR__, "expr/expr.jld2")
 
 if HOPPER_CODEGEN == :load 
     @load path r_hopper rz_hopper rθ_hopper
-elseif HOPPER_CODEGEN == :generate
+else
     nq = hopper.nq
     nu = hopper.nu
     nw = hopper.nw
@@ -105,7 +105,7 @@ elseif HOPPER_CODEGEN == :generate
     end
 
     nz = num_var(hopper)
-    nθ = num_var(hopper)
+    nθ = num_data(hopper)
 
     @variables z[1:nz] θ[1:nθ] μ[1:1]
     r = residual(hopper, z, θ, μ)
@@ -131,3 +131,19 @@ jacobian_data_name(::Hopper) = :rθ_hopper!
 # @benchmark r_hopper!($r0, $z0, $θ0, $μ0)
 # @benchmark rz_hopper!($rz0, $z0, $θ0)
 # @benchmark rθ_hopper!($rθ0, $z0, $θ0)
+
+# rz
+# rθ
+# nz = num_var(hopper)
+# nθ = num_data(hopper)
+
+# z0 = zeros(nz)
+# r0 = zeros(nz) 
+# θ0 = zeros(nθ)
+# μ0 = zeros(1)
+# rz0 = zeros(nz, nz) 
+# rθ0 = zeros(nz, nθ)
+
+# r_hopper!(r0, z0, θ0, μ0)
+# rz_hopper!(rz0, z0, θ0)
+# rθ_hopper!(rθ0, z0, θ0)
