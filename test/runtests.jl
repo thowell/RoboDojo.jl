@@ -6,6 +6,7 @@ using StaticArrays
 using LinearAlgebra
 using Random
 using BenchmarkTools
+using RobotDojo
 
 # Solver
 include("solver/lu.jl")

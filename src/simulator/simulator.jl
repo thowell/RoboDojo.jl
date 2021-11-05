@@ -1,4 +1,33 @@
 
+@with_kw struct SimulatorOptions{T}
+    warmstart::Bool = true
+    z_warmstart::T = 0.001
+    κ_warmstart::T = 0.001
+	failure_abort::Int = 50
+end
+
+struct SimulatorStatistics{T}
+    time::Vector{T}
+    mean::Vector{T}
+    std::Vector{T}
+end
+
+function SimulatorStatistics()
+    time = zeros(0)
+    mean = zeros(0)
+    std = zeros(0)
+    return SimulatorStatistics(time, mean, std)
+end
+
+function process!(stats::SimulatorStatistics, N_sample::Int)
+    H_sim = length(stats.time)
+    H = Int(H_sim / N_sample)
+    time = sum(reshape(stats.time, (H, N_sample)), dims=2)
+    stats.mean[1] = mean(time)
+    stats.std[1] = sqrt(mean( (time .- stats.mean[1]).^2 ))
+    return nothing
+end
+
 struct Simulator{T,R,RZ,Rθ,M<:Model{T},P<:Policy{T},D<:Disturbances{T}}
     model::M
     policy::P
@@ -10,6 +39,8 @@ struct Simulator{T,R,RZ,Rθ,M<:Model{T},P<:Policy{T},D<:Disturbances{T}}
     idx_θ::Indicesθ
     f::Vector{T}
     h::T
+    stats::SimulatorStatistics{T}
+    opts::SimulatorOptions{T}
 end
 
 function Simulator(model, T; 
@@ -21,7 +52,7 @@ function Simulator(model, T;
         jacobian_z=eval(jacobian_var_name(model)), 
         jacobian_θ=eval(jacobian_data_name(model)),
         diff_sol=false,
-        opts=InteriorPointOptions(
+        solver_opts=InteriorPointOptions(
             undercut=Inf,
             γ_reg=0.1,
             r_tol=1e-8,
@@ -29,7 +60,10 @@ function Simulator(model, T;
             max_ls=25,
             ϵ_min=0.25,
             diff_sol=diff_sol,
-            verbose=false))
+            verbose=false),
+        stats=SimulatorStatistics(),
+        sim_opts=SimulatorOptions()
+        )
 
     idx_z = indices_z(model)
     idx_θ = indices_θ(model, nf=length(f))
@@ -52,12 +86,12 @@ function Simulator(model, T;
          rθ! = jacobian_θ,
          rz=zeros(nz, nz),
          rθ=zeros(nz, nθ),
-         opts=opts)
+         opts=solver_opts)
 
     traj = Trajectory(model, T)
     grad = GradientTrajectory(model, T)
 
-    Simulator(model, policy, dist, traj, grad, ip, idx_z, idx_θ, f, h)
+    Simulator(model, policy, dist, traj, grad, ip, idx_z, idx_θ, f, h, stats, sim_opts)
 end
 
 function step!(traj::Trajectory{T}, grad::GradientTrajectory{T}, ip::InteriorPoint{T}, p::Policy{T}, w::Disturbances{T}, f::Vector{T}, h::T, idx_z::IndicesZ, idx_θ::Indicesθ, t::Int) where T

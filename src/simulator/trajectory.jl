@@ -13,7 +13,7 @@ function Trajectory(model, T; nv=model.nq, nc=model.nc, nb=model.nc)
     nw = model.nw 
 
     q = [zeros(nq) for t = 1:T+2]
-    v = [zeros(nv) for t = 1:T+1] 
+    v = [zeros(nv) for t = 1:T+1] # midpoint velocities; TODO: knotpoint velocities
     u = [zeros(nu) for t = 1:T]
     γ = [zeros(nc) for t = 1:T] 
     b = [zeros(nb) for t = 1:T] 
