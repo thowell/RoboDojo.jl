@@ -69,7 +69,7 @@
         opts = opts)
 
     # solve
-    status = interior_point_solve!(ip)
+    status = RobotDojo.interior_point_solve!(ip)
 
     # test
     @test status

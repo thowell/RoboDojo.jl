@@ -434,7 +434,7 @@ function signed_distance(model::Quadruped, q)
     return [k[2], k[4], k[6], k[8], k[10], k[12], k[14], k[16], k[18], k[20]]
 end
 
-function input_jacobian(::Quadruped)
+function input_jacobian(::Quadruped, q)
     [0.0  0.0 -1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0  0.0;
      0.0  0.0  0.0 -1.0  1.0  0.0  0.0  0.0  0.0  0.0  0.0;
      0.0  0.0 -1.0  0.0  0.0  1.0  0.0  0.0  0.0  0.0  0.0;
@@ -527,3 +527,26 @@ quadruped = Quadruped(nq, nu, nw, nc,
                 friction_foot_world, 
                 gravity)
 
+quadruped_contact_kinematics = [q -> kinematics_calf(quadruped, q, leg=:leg1, mode=:ee),
+    q -> kinematics_calf(quadruped, q, leg=:leg2, mode=:ee),
+    q -> kinematics_calf(quadruped, q, leg=:leg3, mode=:ee),
+    q -> kinematics_calf(quadruped, q, leg=:leg4, mode=:ee),
+    q -> kinematics_thigh(quadruped, q, leg=:leg1, mode=:ee),
+    q -> kinematics_thigh(quadruped, q, leg=:leg2, mode=:ee),
+    q -> kinematics_thigh(quadruped, q, leg=:leg3, mode=:ee),
+    q -> kinematics_thigh(quadruped, q, leg=:leg4, mode=:ee),
+    q -> kinematics_hip(quadruped, q, hip=:hip1),
+    q -> kinematics_hip(quadruped, q, hip=:hip2)]
+
+quadruped_contact_kinematics_jacobians = [q -> kinematics_jacobian_calf(quadruped, q, leg=:leg1, mode=:ee),
+    q -> kinematics_jacobian_calf(quadruped, q, leg=:leg2, mode=:ee),
+    q -> kinematics_jacobian_calf(quadruped, q, leg=:leg3, mode=:ee),
+    q -> kinematics_jacobian_calf(quadruped, q, leg=:leg4, mode=:ee),
+    q -> kinematics_jacobian_thigh(quadruped, q, leg=:leg1, mode=:ee),
+    q -> kinematics_jacobian_thigh(quadruped, q, leg=:leg2, mode=:ee),
+    q -> kinematics_jacobian_thigh(quadruped, q, leg=:leg3, mode=:ee),
+    q -> kinematics_jacobian_thigh(quadruped, q, leg=:leg4, mode=:ee),
+    q -> kinematics_jacobian_hip(quadruped, q, hip=:hip1),
+    q -> kinematics_jacobian_hip(quadruped, q, hip=:hip2)]
+
+name(::Quadruped) = :quadruped

@@ -48,9 +48,9 @@ function Simulator(model, T;
         policy=empty_policy(model), 
         dist=empty_disturbances(model), 
         f=friction_coefficients(model),
-        residual=eval(residual_name(model)), 
-        jacobian_z=eval(jacobian_var_name(model)), 
-        jacobian_θ=eval(jacobian_data_name(model)),
+        residual=eval(residual_expr(model)), 
+        jacobian_z=eval(jacobian_var_expr(model)), 
+        jacobian_θ=eval(jacobian_data_expr(model)),
         diff_sol=false,
         solver_opts=InteriorPointOptions(
             undercut=Inf,

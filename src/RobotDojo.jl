@@ -31,6 +31,7 @@ include(joinpath("../src/simulator/disturbances.jl"))
 include(joinpath("../src/simulator/trajectory.jl"))
 include(joinpath("../src/simulator/policy.jl"))
 include(joinpath("../src/simulator/simulator.jl"))
+include(joinpath("../src/simulator/residual.jl"))
 
 # Robots
 include(joinpath("../src/robots/visual_utils.jl"))
@@ -48,18 +49,35 @@ include(joinpath("../src/robots/quadruped/visuals.jl"))
 include(joinpath("../src/robots/box/model.jl"))
 include(joinpath("../src/robots/box/visuals.jl"))
 
-# code generation
-HOPPER_CODEGEN = :load
-include(joinpath(@__DIR__, "../src/robots/hopper/codegen.jl"))
+include(joinpath("../src/robots/integrator.jl"))
 
-BIPED_CODEGEN = :load
-include(joinpath(@__DIR__, "../src/robots/biped/codegen.jl"))
+# load simulation environments
 
-QUADRUPED_CODEGEN = :load
-include(joinpath(@__DIR__, "../src/robots/quadruped/codegen.jl"))
+RESIDUAL_EXPR = Dict{String, Any}()
+residual_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_r"]
+jacobian_var_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_rz"]
+jacobian_data_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_rθ"]
 
-# BOX_CODEGEN = :load
-# include(joinpath("../src/robots/box/codegen.jl"))
+model = hopper 
+path = joinpath(@__DIR__, "robots", String(name(model)), "expr/expr.jld2")
+@load path r_model rz_model rθ_model
+RESIDUAL_EXPR[String(name(model)) * "_r"] = eval(r_model)
+RESIDUAL_EXPR[String(name(model)) * "_rz"] = eval(rz_model)
+RESIDUAL_EXPR[String(name(model)) * "_rθ"] = eval(rθ_model)
+
+model = biped 
+path = joinpath(@__DIR__, "robots", String(name(model)), "expr/expr.jld2")
+@load path r_model rz_model rθ_model
+RESIDUAL_EXPR[String(name(model)) * "_r"] = eval(r_model)
+RESIDUAL_EXPR[String(name(model)) * "_rz"] = eval(rz_model)
+RESIDUAL_EXPR[String(name(model)) * "_rθ"] = eval(rθ_model)
+
+model = quadruped 
+path = joinpath(@__DIR__, "robots", String(name(model)), "expr/expr.jld2")
+@load path r_model rz_model rθ_model
+RESIDUAL_EXPR[String(name(model)) * "_r"] = eval(r_model)
+RESIDUAL_EXPR[String(name(model)) * "_rz"] = eval(rz_model)
+RESIDUAL_EXPR[String(name(model)) * "_rθ"] = eval(rθ_model)
 
 # Policy
 include(joinpath("../src/policy/raibert.jl"))

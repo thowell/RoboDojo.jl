@@ -101,17 +101,17 @@ function signed_distance(model::Hopper, q, pt1, pt2)
 end
 
 # input matrix
-function input_jacobian(model, q)
-	[
+function input_jacobian(::Hopper, q)
+	transpose([
      0.0 -sin(q[3]); 
      0.0 cos(q[3]); 
      1.0 0.0; 
      0.0 1.0
-    ]
+    ])
 end
 
 # contact Jacobian
-function contact_jacobian(model, q)
+function contact_jacobian(::Hopper, q)
     [1.0 0.0 0.0 0.0; # note that body torque due to friction is added in residual
      0.0 1.0 0.0 0.0;
      1.0 0.0 (q[4] * cos(q[3])) sin(q[3]);
@@ -158,3 +158,11 @@ hopper = Hopper(nq, nu, nw,
             friction_body_world, friction_foot_world, 
             gravity)
 
+# contact kinematics
+hopper_contact_kinematics = [q -> kinematics_body(hopper, q),
+    q -> kinematics_foot(hopper, q)] 
+
+hopper_contact_kinematics_jacobians = [q -> kinematics_body_jacobian(hopper, q), 
+    q -> kinematics_foot_jacobian(hopper, q)]
+
+name(::Hopper) = :hopper

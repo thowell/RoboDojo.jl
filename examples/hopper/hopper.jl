@@ -1,4 +1,3 @@
-
 q1 = nominal_configuration(hopper)
 v1 = zeros(hopper.nq)
 

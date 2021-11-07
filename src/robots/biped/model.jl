@@ -328,9 +328,14 @@ function kinematics(model::Biped, q)
 	p_body_2 = kinematics_body(model, q, mode=:ee)
 
 	[
-	 p_toe_1; p_heel_1; p_toe_2; p_heel_2;
-	 p_knee_1; p_knee_2;
-	 p_body_1; p_body_2;
+	 p_toe_1; 
+	 p_heel_1; 
+	 p_toe_2; 
+	 p_heel_2;
+	 p_knee_1; 
+	 p_knee_2;
+	 p_body_1; 
+	 p_body_2;
 	]
 end
 
@@ -410,7 +415,7 @@ function signed_distance(model::Biped, q)
 	return [k[2], k[4], k[6], k[8], k[10], k[12], k[14], k[16]]
 end
 
-function input_jacobian(::Biped)
+function input_jacobian(::Biped, q)
 	[0.0  0.0 -1.0  1.0  0.0  0.0  0.0  0.0  0.0;
 	 0.0  0.0  0.0 -1.0  1.0  0.0  0.0  0.0  0.0;
 	 0.0  0.0  0.0  0.0 -1.0  1.0  0.0  0.0  0.0;
@@ -502,3 +507,23 @@ biped = Biped(nq, nu, nw, nc,
 			  friction_body_world,
 			  friction_foot_world,
 			  gravity)
+
+biped_contact_kinematics = [q -> kinematics_foot(biped, q, leg=:leg1, mode=:toe), 
+	q -> kinematics_foot(biped, q, leg=:leg1, mode=:heel),
+	q -> kinematics_foot(biped, q, leg=:leg2, mode=:toe), 
+	q -> kinematics_foot(biped, q, leg=:leg2, mode=:heel), 
+	q -> kinematics_thigh(biped, q, leg=:leg1, mode=:ee),
+	q -> kinematics_thigh(biped, q, leg=:leg2, mode=:ee),
+	q -> q[1:2],
+	q -> kinematics_body(biped, q, mode=:ee)]
+
+biped_contact_kinematics_jacobians = [q -> kinematics_jacobian_foot(biped, q, leg=:leg1, mode=:toe), 
+	q -> kinematics_jacobian_foot(biped, q, leg=:leg1, mode=:heel),
+	q -> kinematics_jacobian_foot(biped, q, leg=:leg2, mode=:toe), 
+	q -> kinematics_jacobian_foot(biped, q, leg=:leg2, mode=:heel), 
+	q -> kinematics_jacobian_thigh(biped, q, leg=:leg1, mode=:ee),
+	q -> kinematics_jacobian_thigh(biped, q, leg=:leg2, mode=:ee),
+	q -> kinematics_jacobian_body(biped, q, mode=:hip),
+	q -> kinematics_jacobian_body(biped, q, mode=:ee)]
+
+name(::Biped) = :biped

@@ -31,7 +31,7 @@
 
         r[1:3] = [0.0; v] + [y; 0.0; 0.0] - z
         r[4] = x[1] - μγ
-        r[5:7] = cone_product(x, z) - [κ[1]; 0.0; 0.0]
+        r[5:7] = RobotDojo.cone_product(x, z) - [κ[1]; 0.0; 0.0]
         nothing
     end
 
@@ -64,8 +64,8 @@
     z[5] += 1.0
 
     # solver
-    opts = InteriorPointOptions(diff_sol = true)
-    ip = interior_point(z, θ,
+    opts = RobotDojo.InteriorPointOptions(diff_sol = true)
+    ip = RobotDojo.interior_point(z, θ,
         idx=idx,
         r! = rf!, rz! = rzf!, rθ! = rθf!,
         rz = rz_sp,
@@ -73,7 +73,7 @@
         opts = opts)
 
     # solve
-    status = interior_point_solve!(ip)
+    status = RobotDojo.interior_point_solve!(ip)
 
     # test
     @test status
@@ -95,7 +95,7 @@
     ip.θ .= θ
 
     # solve
-    status = interior_point_solve!(ip)
+    status = RobotDojo.interior_point_solve!(ip)
 
     # test
     @test status
@@ -117,7 +117,7 @@
     ip.θ .= θ
 
     # solve
-    status = interior_point_solve!(ip)
+    status = RobotDojo.interior_point_solve!(ip)
 
     # test
     @test status
@@ -139,7 +139,7 @@
     ip.θ .= θ
 
     # solve
-    status = interior_point_solve!(ip)
+    status = RobotDojo.interior_point_solve!(ip)
 
     # test
     @test status
@@ -161,7 +161,7 @@
     ip.θ .= θ
 
     # solve
-    status = interior_point_solve!(ip)
+    status = RobotDojo.interior_point_solve!(ip)
 
     # test
     @test status
