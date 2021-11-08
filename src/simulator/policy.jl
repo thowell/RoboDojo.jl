@@ -19,8 +19,3 @@ end
 function policy(p::EmptyPolicy, traj::Trajectory, t)
     return p.u
 end
-
-"""
-    control saturation
-"""
-control_saturation(u, uL, uU) = min.(max.(uL, u), uU) #TODO: make allocation free

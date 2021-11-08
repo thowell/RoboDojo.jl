@@ -169,10 +169,12 @@ end
 
 function simulate!(traj::Trajectory{T}, grad::GradientTrajectory{T}, ip::InteriorPoint{T}, 
         p::Policy{T}, w::Disturbances{T}, f::Vector{T}, h::T, idx_z::IndicesZ, idx_θ::Indicesθ, N::Int) where T
+    status = false
     for t = 1:N
         status = step!(traj, grad, ip, p, w, f, h, idx_z, idx_θ, t)
         !status && break
     end
+    return status
 end
 
 function simulate!(s::Simulator{T}, q::Vector{T}, v::Vector{T}; reset_traj=false) where T

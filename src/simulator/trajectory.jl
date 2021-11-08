@@ -71,15 +71,15 @@ end
 function reset!(traj::GradientTrajectory) 
     T = length(traj.∂q3∂q1) 
     for t = 1:T
-        fill!(∂q3∂q1[t], 0.0)
-        fill!(∂q3∂q2[t], 0.0)
-        fill!(∂q3∂u1[t], 0.0)
-        fill!(∂γ1∂q1[t], 0.0)
-        fill!(∂γ1∂q2[t], 0.0)
-        fill!(∂γ1∂u1[t], 0.0)
-        fill!(∂b1∂q1[t], 0.0)
-        fill!(∂b1∂q2[t], 0.0)
-        fill!(∂b1∂u1[t], 0.0)
+        fill!(traj.∂q3∂q1[t], 0.0)
+        fill!(traj.∂q3∂q2[t], 0.0)
+        fill!(traj.∂q3∂u1[t], 0.0)
+        fill!(traj.∂γ1∂q1[t], 0.0)
+        fill!(traj.∂γ1∂q2[t], 0.0)
+        fill!(traj.∂γ1∂u1[t], 0.0)
+        fill!(traj.∂b1∂q1[t], 0.0)
+        fill!(traj.∂b1∂q2[t], 0.0)
+        fill!(traj.∂b1∂u1[t], 0.0)
     end
     return nothing
 end

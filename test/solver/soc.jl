@@ -4,6 +4,17 @@
 		subject to ||b|| <= μn
 	"""
 
+    # second-order cone
+    a = [2.0; 1.0] 
+    b = [1.0; 0.1] 
+
+    c = cone_product(a, b)
+    @test norm(c - [2.1; 1.2]) < 1.0e-8
+
+    d = zeros(2) 
+    cone_product!(d, a, b)
+    @test norm(d - c) < 1.0e-8
+
     # number of decision variables
     n = 7
     m = 3

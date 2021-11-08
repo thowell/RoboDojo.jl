@@ -313,7 +313,7 @@ function general_correction_term!(r::AbstractVector{T}, Δ::AbstractVector{T},
         Δso1 = @views Δ[socΔ[i][1]]
         Δso2 = @views Δ[socΔ[i][2]]
         rsocri = @views r[socri[i]]
-        second_order_cone_product!(rsocri, Δso2, Δso1, reset=false)
+        cone_product!(rsocri, Δso2, Δso1, reset=false)
     end
     return nothing
 end
