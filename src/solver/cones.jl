@@ -1,7 +1,4 @@
-function cone_product(z, s)
-    n = length(z)
-    [z' * s; z[1] * view(s, 2:n) + s[1] * view(z, 2:n)]
-end
+cone_product(a, b) = [dot(a, b); a[1] * b[2:end] + b[1] * a[2:end]]
 
 function cone_product!(a, z, s; reset=false) 
     reset && fill!(a, 0.0)

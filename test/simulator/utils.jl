@@ -1,7 +1,7 @@
 @testset "Simulator: utilities" begin
     # dimensions
     nz = RobotDojo.num_var(biped) 
-    nθ = RobotDojo.num_data(biped, nf=length(RobotDojo.friction_coefficients(biped)))
+    nθ = RobotDojo.num_data(biped, nf=length(friction_coefficients(biped)))
 
     @test nz == 57 
     @test nθ == 33 
@@ -39,7 +39,7 @@
     @test idx_z.sψ == collect(42:49)
     @test idx_z.sb == collect(50:57)
 
-    idx_θ = RobotDojo.indices_θ(biped, nf=length(RobotDojo.friction_coefficients(biped))) 
+    idx_θ = RobotDojo.indices_θ(biped, nf=length(friction_coefficients(biped))) 
     @test idx_θ.q1 == collect(1:9)
     @test idx_θ.q2 == collect(10:18)
     @test idx_θ.u == collect(19:24)
@@ -87,7 +87,7 @@
     q0 = rand(biped.nq)
     u0 = rand(biped.nu) 
     w0 = rand(biped.nw) 
-    f0 = RobotDojo.friction_coefficients(biped) 
+    f0 = friction_coefficients(biped) 
     h0 = [0.235] 
     RobotDojo.initialize_z!(z0, idx_z, q0)
     @test norm(z0 - [q0; 1.0 * ones(3 * biped.nc); 0.1 * ones(biped.nc); 1.0 * ones(biped.nc); 0.1 * ones(biped.nc)]) < 1.0e-8

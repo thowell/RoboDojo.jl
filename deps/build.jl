@@ -28,6 +28,8 @@ include(joinpath("../src/robots/integrator.jl"))
 
 include(joinpath("../src/solver/cones.jl"))
 
+CODEGEN_SAVE = true
+
 path_codegen = joinpath(@__DIR__,"..", "src/simulator/codegen.jl")
 
 include(joinpath(@__DIR__,"..", "src/robots/hopper/model.jl"))
@@ -36,18 +38,18 @@ model = hopper
 contact_kinematics = hopper_contact_kinematics
 contact_kinematics_jacobians = hopper_contact_kinematics_jacobians 
 path = joinpath(@__DIR__, "..", "src/robots", String(name(model)), "expr/expr.jld2")
-include(path_codegen)
+status = include(path_codegen)
 
 include(joinpath(@__DIR__,"..", "src/robots/biped/model.jl"))
 model = biped 
 contact_kinematics = biped_contact_kinematics
 contact_kinematics_jacobians = biped_contact_kinematics_jacobians 
 path = joinpath(@__DIR__, "..", "src/robots", String(name(model)), "expr/expr.jld2")
-include(path_codegen)
+status = include(path_codegen)
 
 include(joinpath(@__DIR__,"..", "src/robots/quadruped/model.jl"))
 model = quadruped 
 contact_kinematics = quadruped_contact_kinematics
 contact_kinematics_jacobians = quadruped_contact_kinematics_jacobians 
 path = joinpath(@__DIR__, "..", "src/robots", String(name(model)), "expr/expr.jld2")
-include(path_codegen)
+status = include(path_codegen)

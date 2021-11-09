@@ -86,6 +86,11 @@ export
     hopper, biped, quadruped, 
     nominal_configuration,
     simulate!, Simulator, 
-    visualize!, Visualizer
+    visualize!, Visualizer,
+    friction_coefficients,
+    lagrangian, 
+    num_var, num_data, 
+    residual
+
 
 end # module

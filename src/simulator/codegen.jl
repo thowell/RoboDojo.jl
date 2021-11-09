@@ -1,6 +1,3 @@
-# if CODEGEN == :load 
-#     @load path r_model rz_model rθ_model 
-# else
 # dimensions
 nq = model.nq
 nf = length(friction_coefficients(model))
@@ -36,15 +33,19 @@ r_model = Symbolics.build_function(r, z, θ, μ)[2]
 rz_model = Symbolics.build_function(rz, z, θ)[2]
 rθ_model = Symbolics.build_function(rθ, z, θ)[2]
 
-@save path r_model rz_model rθ_model
+if CODEGEN_SAVE 
+    (@save path r_model rz_model rθ_model)
+else
+    r0 = zeros(nz) 
+    z0 = rand(nz) 
+    θ0 = rand(nθ) 
+    μ0 = ones(1) 
+    rz0 = rand(nz, nz) 
+    rθ0 = rand(nz, nθ) 
 
-# end
+    eval(r_model)(r0, z0, θ0, μ0)
+    eval(rz_model)(rz0, z0, θ0)
+    eval(rθ_model)(rθ0, z0, θ0)
+end
 
-# RESIDUAL_EXPR[String(name(model)) * "_r"] = eval(r_model)
-# RESIDUAL_EXPR[String(name(model)) * "_rz"] = eval(rz_model)
-# RESIDUAL_EXPR[String(name(model)) * "_rθ"] = eval(rθ_model)
-
-# using BenchmarkTools
-# @benchmark r_model!($r0, $z0, $θ0, $μ0)
-# @benchmark rz_model!($rz0, $z0, $θ0)
-# @benchmark rθ_model!($rθ0, $z0, $θ0)
+status = true # status for unit tests
