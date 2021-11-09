@@ -15,6 +15,7 @@ include("solver/soc.jl")
 
 # Simulator 
 include("simulator/utils.jl")
+include("simulator/simulate.jl")
 
 
 

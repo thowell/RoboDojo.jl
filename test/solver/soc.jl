@@ -8,11 +8,11 @@
     a = [2.0; 1.0] 
     b = [1.0; 0.1] 
 
-    c = cone_product(a, b)
+    c = RobotDojo.cone_product(a, b)
     @test norm(c - [2.1; 1.2]) < 1.0e-8
 
     d = zeros(2) 
-    cone_product!(d, a, b)
+    RobotDojo.cone_product!(d, a, b)
     @test norm(d - c) < 1.0e-8
 
     # number of decision variables

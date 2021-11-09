@@ -1,36 +1,36 @@
 @testset "Simulator: utilities" begin
     # dimensions
-    nz = num_var(biped) 
-    nθ = num_data(biped, nf=length(friction_coefficients(biped)))
+    nz = RobotDojo.num_var(biped) 
+    nθ = RobotDojo.num_data(biped, nf=length(RobotDojo.friction_coefficients(biped)))
 
     @test nz == 57 
     @test nθ == 33 
 
     # trajectory 
-    traj = Trajectory(biped, 5) 
-    grad = GradientTrajectory(biped, 5)
+    traj = RobotDojo.Trajectory(biped, 5) 
+    grad = RobotDojo.GradientTrajectory(biped, 5)
     @test length(traj.q) == 7
     @test length(traj.v) == 6
     @test length(traj.u) == 5
     traj.q[1] .= rand(biped.nq)
-    reset!(traj)
+    RobotDojo.reset!(traj)
     @test all(traj.q[1] .== 0.0)
     @test length(grad.∂q3∂q1) == 5
     grad.∂q3∂q1[1] .= rand(biped.nq, biped.nq)
-    reset!(grad)
+    RobotDojo.reset!(grad)
     @test all(grad.∂q3∂q1[1] .== 0.0)
 
     # disturbances 
-    dist = empty_disturbances(biped) 
+    dist = RobotDojo.empty_disturbances(biped) 
     @test length(dist.w) == biped.nw
-    @test length(disturbances(dist, traj, 1)) == biped.nw
+    @test length(RobotDojo.disturbances(dist, traj, 1)) == biped.nw
 
     # policy 
-    p = empty_policy(biped)
-    @test length(policy(p, traj, 1)) == biped.nu
+    p = RobotDojo.empty_policy(biped)
+    @test length(RobotDojo.policy(p, traj, 1)) == biped.nu
 
     # indices
-    idx_z = indices_z(biped)
+    idx_z = RobotDojo.indices_z(biped)
     @test idx_z.q == collect(1:9)
     @test idx_z.γ == collect(10:17) 
     @test idx_z.sγ == collect(18:25)
@@ -38,9 +38,8 @@
     @test idx_z.b == collect(34:41)
     @test idx_z.sψ == collect(42:49)
     @test idx_z.sb == collect(50:57)
-    friction_coefficients(biped)
 
-    idx_θ = indices_θ(biped, nf=length(friction_coefficients(biped))) 
+    idx_θ = RobotDojo.indices_θ(biped, nf=length(RobotDojo.friction_coefficients(biped))) 
     @test idx_θ.q1 == collect(1:9)
     @test idx_θ.q2 == collect(10:18)
     @test idx_θ.u == collect(19:24)
@@ -48,7 +47,7 @@
     @test idx_θ.f == collect(25:32)
     @test idx_θ.h == collect(33:33)
 
-    idx_opt = indices_optimization(biped)
+    idx_opt = RobotDojo.indices_optimization(biped)
     @test idx_opt.nz == nz
     @test idx_opt.nΔ == nz
     @test idx_opt.ortz == [[10, 11, 12, 13, 14, 15, 16, 17], [18, 19, 20, 21, 22, 23, 24, 25]]
@@ -88,16 +87,14 @@
     q0 = rand(biped.nq)
     u0 = rand(biped.nu) 
     w0 = rand(biped.nw) 
-    f0 = friction_coefficients(biped) 
+    f0 = RobotDojo.friction_coefficients(biped) 
     h0 = [0.235] 
-    initialize_z!(z0, idx_z, q0)
+    RobotDojo.initialize_z!(z0, idx_z, q0)
     @test norm(z0 - [q0; 1.0 * ones(3 * biped.nc); 0.1 * ones(biped.nc); 1.0 * ones(biped.nc); 0.1 * ones(biped.nc)]) < 1.0e-8
 
-    initialize_θ!(θ0, idx_θ, q0, q0, u0, w0, f0, h0)
+    RobotDojo.initialize_θ!(θ0, idx_θ, q0, q0, u0, w0, f0, h0)
     @test norm(θ0 - [q0; q0; u0; w0; f0; h0]) < 1.0e-8
 
     # floating base dimensions
-    @test floating_base_dim(biped) == 3
-
-
+    @test RobotDojo.floating_base_dim(biped) == 3
 end
