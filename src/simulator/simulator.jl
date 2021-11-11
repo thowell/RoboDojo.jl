@@ -1,30 +1,47 @@
 
 @with_kw struct SimulatorOptions{T}
-    warmstart::Bool = true
-    z_warmstart::T = 0.001
-    κ_warmstart::T = 0.001
-	failure_abort::Int = 50
+    warmstart::Bool=true
+    record::Bool=false
+    z_warmstart::T=0.001
+    κ_warmstart::T=0.001
+	failure_abort::Int=50
 end
 
 struct SimulatorStatistics{T}
-    time::Vector{T}
-    mean::Vector{T}
-    std::Vector{T}
+    policy_time::Vector{T}
+    policy_mean::Vector{T}
+    policy_std::Vector{T}
+    sim_time::Vector{T}
+    sim_mean::Vector{T}
+    sim_std::Vector{T}
 end
 
-function SimulatorStatistics()
-    time = zeros(0)
-    mean = zeros(0)
-    std = zeros(0)
-    return SimulatorStatistics(time, mean, std)
+function SimulatorStatistics(H)
+    policy_time = zeros(H)
+    policy_mean = zeros(1)
+    policy_std = zeros(1)
+    sim_time = zeros(H)
+    sim_mean = zeros(1)
+    sim_std = zeros(1)
+    return SimulatorStatistics(policy_time, policy_mean, policy_std, 
+        sim_time, sim_mean, sim_std)
 end
 
 function process!(stats::SimulatorStatistics, N_sample::Int)
-    H_sim = length(stats.time)
+    # policy
+    H_sim = length(stats.policy_time)
     H = Int(H_sim / N_sample)
-    time = sum(reshape(stats.time, (H, N_sample)), dims=2)
-    stats.mean[1] = mean(time)
-    stats.std[1] = sqrt(mean( (time .- stats.mean[1]).^2 ))
+    policy_time = sum(reshape(stats.policy_time, (H, N_sample)), dims=2)
+    stats.policy_mean[1] = mean(policy_time)
+    stats.policy_std[1] = sqrt(mean((policy_time .- stats.policy_mean[1]).^2.0))
+    
+    # simulation
+    H_sim = length(stats.sim_time)
+    H = Int(H_sim / N_sample)
+    sim_time = sum(reshape(stats.sim_time, (H, N_sample)), dims=2)
+    stats.sim_mean[1] = mean(sim_time)
+    stats.sim_std[1] = sqrt(mean((sim_time .- stats.sim_mean[1]).^2.0))
+    
     return nothing
 end
 
@@ -61,10 +78,10 @@ function Simulator(model, T;
             ϵ_min=0.25,
             diff_sol=diff_sol,
             verbose=false),
-        stats=SimulatorStatistics(),
+        stats=SimulatorStatistics(T),
         sim_opts=SimulatorOptions()
         )
-
+    
     idx_z = indices_z(model)
     idx_θ = indices_θ(model, nf=length(f))
     idx_opt = indices_optimization(model)
@@ -74,8 +91,8 @@ function Simulator(model, T;
     z0 = zeros(nz) 
     θ0 = zeros(nθ) 
     q0 = nominal_configuration(model)
-    initialize_z!(z0, idx_z, q0)
-    initialize_θ!(θ0, idx_θ, q0, q0, zeros(model.nu), zeros(model.nw), f, h)
+    initialize_z!(z0, model, idx_z, q0)
+    initialize_θ!(θ0, model, idx_θ, q0, q0, zeros(model.nu), zeros(model.nw), f, h)
 
     ip = interior_point(
          z0,
@@ -94,19 +111,33 @@ function Simulator(model, T;
     Simulator(model, policy, dist, traj, grad, ip, idx_z, idx_θ, f, h, stats, sim_opts)
 end
 
-function step!(traj::Trajectory{T}, grad::GradientTrajectory{T}, ip::InteriorPoint{T}, p::Policy{T}, w::Disturbances{T}, f::Vector{T}, h::T, idx_z::IndicesZ, idx_θ::Indicesθ, t::Int) where T
+#TODO: change method to take state and control inputs
+function step!(s::Simulator{T}, t::Int) where T
+    model = s.model
+    p = s.policy
+    w = s.dist
+    traj = s.traj
+    grad = s.grad
+    ip = s.ip
+    idx_z = s.idx_z
+    idx_θ = s.idx_θ
+    f = s.f
+    h = s.h
+  
     # policy 
-    traj.u[t] .= policy(p, traj, t)
+    policy_time = @elapsed traj.u[t] .= policy(p, traj, t)
+    s.opts.record && (s.stats.policy_time[t] = policy_time)
 
     # disturbances 
     traj.w[t] .= disturbances(w, traj.q[t+1], t)
 
     # initialize
-    initialize_z!(ip.z, idx_z, traj.q[t+1])
-    initialize_θ!(ip.θ, idx_θ, traj.q[t], traj.q[t+1], traj.u[t], traj.w[t], f, h)
+    initialize_z!(ip.z, model, idx_z, traj.q[t+1])
+    initialize_θ!(ip.θ, model, idx_θ, traj.q[t], traj.q[t+1], traj.u[t], traj.w[t], f, h)
 
     # solve
-    status = interior_point_solve!(ip)
+    sim_time = @elapsed status = interior_point_solve!(ip)
+    s.opts.record && (s.stats.sim_time[t] = sim_time)
 
     # status check
     if !status 
@@ -167,16 +198,6 @@ function gradient!(grad::GradientTrajectory{T}, δz::Matrix{T}, idx_z::IndicesZ,
     return nothing
 end
 
-function simulate!(traj::Trajectory{T}, grad::GradientTrajectory{T}, ip::InteriorPoint{T}, 
-        p::Policy{T}, w::Disturbances{T}, f::Vector{T}, h::T, idx_z::IndicesZ, idx_θ::Indicesθ, N::Int) where T
-    status = false
-    for t = 1:N
-        status = step!(traj, grad, ip, p, w, f, h, idx_z, idx_θ, t)
-        !status && break
-    end
-    return status
-end
-
 function simulate!(s::Simulator{T}, q::Vector{T}, v::Vector{T}; reset_traj=false) where T
     # reset trajectory
     reset_traj && reset!(s.traj) 
@@ -184,7 +205,6 @@ function simulate!(s::Simulator{T}, q::Vector{T}, v::Vector{T}; reset_traj=false
 
     # reset solver
     
-
     # initial configuration and velocity
     s.traj.q[2] .= q # q2
     s.traj.v[1] .= v # v1
@@ -195,11 +215,18 @@ function simulate!(s::Simulator{T}, q::Vector{T}, v::Vector{T}; reset_traj=false
     s.traj.q[1] .*= -1.0
     s.traj.q[1] .+= q
 
-    # simulation length
-    N = length(s.traj.u)
-
     # simulate
-    simulate!(s.traj, s.grad, s.ip, s.policy, s.dist, s.f, s.h, s.idx_z, s.idx_θ, N)
+    eval_simulate!(s)
+end
+
+function eval_simulate!(s::Simulator{T}) where T
+    status = false
+    N = length(s.traj.u)
+    for t = 1:N
+        status = step!(s, t)
+        !status && break
+    end
+    return status
 end
 
 function visualize!(vis, s::Simulator; skip=1, fixed_camera=true)

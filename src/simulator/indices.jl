@@ -21,7 +21,7 @@ function indices_z(model)
     IndicesZ(q, γ, sγ, ψ, b, sψ, sb)
 end
 
-function initialize_z!(z, idx::IndicesZ, q)
+function initialize_z!(z, model, idx::IndicesZ, q)
     z[idx.q] .= q
     z[idx.γ] .= 1.0
     z[idx.sγ] .= 1.0
@@ -30,8 +30,6 @@ function initialize_z!(z, idx::IndicesZ, q)
     z[idx.sψ] .= 1.0
     z[idx.sb] .= 0.1
 end
-
-# @benchmark initialize_z!($z0, $idx_x, $q1)
 
 struct Indicesθ 
     q1::Vector{Int}
@@ -57,7 +55,7 @@ function indices_θ(model; nf=1)
     Indicesθ(q1, q2, u, w, f, h) 
 end
 
-function initialize_θ!(θ, idx, q1, q2, u, w, f, h) 
+function initialize_θ!(θ, model, idx, q1, q2, u, w, f, h) 
     θ[idx.q1] .= q1
     θ[idx.q2] .= q2 
     θ[idx.u] .= u
@@ -65,8 +63,6 @@ function initialize_θ!(θ, idx, q1, q2, u, w, f, h)
     θ[idx.f] .= f
     θ[idx.h] .= h
 end
-
-# @benchmark initialize_θ!($θ0, $idx_θ, $q1, $q2, $u0, $w0, $model.friction_body_world, $model.friction_foot_world, $h) 
 
 function indices_optimization(model) 
     nq = model.nq

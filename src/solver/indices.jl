@@ -2,7 +2,7 @@
 # Indices
 ################################################################################
 
-mutable struct IndicesOptimization 
+struct IndicesOptimization 
 	# Set the residual to 0
 	# r(z) = 0
 	# z <- z + Δz

@@ -17,7 +17,6 @@ using JLD2
 include("utils.jl")
 
 # Solver
-include("solver/linear_solver.jl")
 include("solver/lu.jl")
 include("solver/cones.jl")
 include("solver/indices.jl")

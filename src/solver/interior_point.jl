@@ -200,10 +200,16 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
     solver = ip.solver
     ip.iterations = 0
 
+    # evaluate residual
     ip.methods.r!(r, z, θ, 0.0)
 
+    # evaluate bilinear constraint violation
     κ_vio = bilinear_violation(ip, r)
+
+    # evaluate equality constraint violation 
     r_vio = residual_violation(ip, r)
+
+    # begin timer
     elapsed_time = 0.0
 
     for j = 1:max_iter

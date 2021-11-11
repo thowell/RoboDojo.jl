@@ -1,10 +1,5 @@
 abstract type Disturbances{T} end
 
-function disturbances(d::Disturbances, x, t)
-    @warn "disturbances not defined"
-    return nothing
-end
-
 """
     empty disturbances
 """

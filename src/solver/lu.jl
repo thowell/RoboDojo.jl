@@ -1,3 +1,16 @@
+abstract type LinearSolver end
+
+""" 
+    Empty solver 
+"""
+mutable struct EmptySolver <: LinearSolver
+    F::Any
+end
+
+function empty_solver(A::Any)
+    EmptySolver(A)
+end
+
 """
     LU solver
 """
