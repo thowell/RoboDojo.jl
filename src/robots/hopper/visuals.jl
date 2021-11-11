@@ -57,4 +57,6 @@ function visualize!(vis, model::Hopper, q; Δt = 0.1, fixed_camera=true)
     end
 
     MeshCat.setanimation!(vis, anim)
+
+    return true
 end

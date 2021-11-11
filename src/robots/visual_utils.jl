@@ -5,7 +5,7 @@ function default_background!(vis; grid::Bool=true, axes::Bool=false, zoom=1.0)
 	setvisible!(vis["/Axes"], axes)
     setvisible!(vis["/Grid"], grid)
 	# setprop!(vis["/Cameras/default/rotated/<object>"], "zoom", zoom)
-end  
+end
 
 function cable_transform(y, z)
     v1 = [0.0, 0.0, 1.0]

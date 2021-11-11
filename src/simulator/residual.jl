@@ -31,7 +31,7 @@ function residual(model::Model, mass_matrix, dynamics_bias, kinematics, kinemati
     vT = [(rotation[i] * kinematics_jacobians[i](q2) * v1)[1] for i = 1:nc]
 
     # contact forces
-    J = contact_jacobian(model, q2)
+    J = contact_jacobian(model, q2) # TODO: change to Marsden & West convention, i.e., q1
     λ1 = transpose(J) * vcat([transpose(rotation[i]) * [b1[i]; γ1[i]] for i = 1:nc]...)
 
     # residual

@@ -74,7 +74,7 @@ function build_robot!(vis::Visualizer, model::Quadruped;
 	feet4 = setobject!(vis[:robot]["feet4"],
 		GeometryBasics.Sphere(Point3f0(0), r_foot), contact_mat)
 
-	return nothing
+	return true
 end
 
 function set_robot!(vis::Visualizer, model::Quadruped, q::AbstractVector;
@@ -138,7 +138,7 @@ function set_robot!(vis::Visualizer, model::Quadruped, q::AbstractVector;
 	settransform!(vis[:robot]["feet3"], MeshCat.Translation(p_calf_3))
 	settransform!(vis[:robot]["feet4"], MeshCat.Translation(p_calf_4))
 
-	return nothing
+	return true
 end
 
 function visualize!(vis, model, q; 
@@ -165,12 +165,6 @@ function visualize!(vis, model, q;
         compose(Translation(0.0, -50.0, -1.0),LinearMap(RotZ(-pi / 2.0))))
         setprop!(vis["/Cameras/default/rotated/<object>"], "zoom", 25)
 	end
+
+	return true
 end
-
-
-# vis = Visualizer()
-# open(vis)
-
-# q0 = [0.0; 0.5; 0.0 * π; 0.25 * π; 0.5 * π; 0.1 * π; 0.3 * π; -0.25 * π; 0.1 * π; -0.5 * π; -0.1 * π]
-# build_robot!(vis, quadruped)
-# set_robot!(vis, quadruped, q0)

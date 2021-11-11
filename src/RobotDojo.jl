@@ -3,7 +3,6 @@ module RobotDojo
 using LinearAlgebra
 using Symbolics
 using SparseArrays
-using StaticArrays
 using BenchmarkTools
 using MeshCat
 using GeometryBasics
@@ -31,6 +30,7 @@ include(joinpath("../src/simulator/trajectory.jl"))
 include(joinpath("../src/simulator/policy.jl"))
 include(joinpath("../src/simulator/simulator.jl"))
 include(joinpath("../src/simulator/residual.jl"))
+include(joinpath("../src/simulator/codegen.jl"))
 
 # Robots
 include(joinpath("../src/robots/visual_utils.jl"))
@@ -49,37 +49,39 @@ include(joinpath("../src/robots/box/model.jl"))
 include(joinpath("../src/robots/box/visuals.jl"))
 
 include(joinpath("../src/robots/integrator.jl"))
+include(joinpath("../src/robots/codegen.jl"))
+
+include(joinpath("../src/robots/load.jl"))
 
 # load simulation environments
 
-RESIDUAL_EXPR = Dict{String, Any}()
-residual_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_r"]
-jacobian_var_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_rz"]
-jacobian_data_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_rθ"]
+# RESIDUAL_EXPR = Dict{String, Any}()
+# residual_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_r"]
+# jacobian_var_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_rz"]
+# jacobian_data_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_rθ"]
 
-model = hopper 
-path = joinpath(@__DIR__, "robots", String(name(model)), "expr/expr.jld2")
-@load path r_model rz_model rθ_model
-RESIDUAL_EXPR[String(name(model)) * "_r"] = eval(r_model)
-RESIDUAL_EXPR[String(name(model)) * "_rz"] = eval(rz_model)
-RESIDUAL_EXPR[String(name(model)) * "_rθ"] = eval(rθ_model)
+# model = hopper 
+# path = joinpath(@__DIR__, "robots", String(name(model)), "expr/expr.jld2")
+# @load path r_model rz_model rθ_model
+# RESIDUAL_EXPR[String(name(model)) * "_r"] = eval(r_model)
+# RESIDUAL_EXPR[String(name(model)) * "_rz"] = eval(rz_model)
+# RESIDUAL_EXPR[String(name(model)) * "_rθ"] = eval(rθ_model)
 
-model = biped 
-path = joinpath(@__DIR__, "robots", String(name(model)), "expr/expr.jld2")
-@load path r_model rz_model rθ_model
-RESIDUAL_EXPR[String(name(model)) * "_r"] = eval(r_model)
-RESIDUAL_EXPR[String(name(model)) * "_rz"] = eval(rz_model)
-RESIDUAL_EXPR[String(name(model)) * "_rθ"] = eval(rθ_model)
+# model = biped 
+# path = joinpath(@__DIR__, "robots", String(name(model)), "expr/expr.jld2")
+# @load path r_model rz_model rθ_model
+# RESIDUAL_EXPR[String(name(model)) * "_r"] = eval(r_model)
+# RESIDUAL_EXPR[String(name(model)) * "_rz"] = eval(rz_model)
+# RESIDUAL_EXPR[String(name(model)) * "_rθ"] = eval(rθ_model)
 
-model = quadruped 
-path = joinpath(@__DIR__, "robots", String(name(model)), "expr/expr.jld2")
-@load path r_model rz_model rθ_model
-RESIDUAL_EXPR[String(name(model)) * "_r"] = eval(r_model)
-RESIDUAL_EXPR[String(name(model)) * "_rz"] = eval(rz_model)
-RESIDUAL_EXPR[String(name(model)) * "_rθ"] = eval(rθ_model)
+# model = quadruped 
+# path = joinpath(@__DIR__, "robots", String(name(model)), "expr/expr.jld2")
+# @load path r_model rz_model rθ_model
+# RESIDUAL_EXPR[String(name(model)) * "_r"] = eval(r_model)
+# RESIDUAL_EXPR[String(name(model)) * "_rz"] = eval(rz_model)
+# RESIDUAL_EXPR[String(name(model)) * "_rθ"] = eval(rθ_model)
 
 # Policy
-include(joinpath("../src/policy/raibert.jl"))
 
 export
     hopper, biped, quadruped, 
@@ -90,6 +92,5 @@ export
     lagrangian, 
     num_var, num_data, 
     residual
-
 
 end # module

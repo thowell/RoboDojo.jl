@@ -39,7 +39,7 @@ function build_robot!(vis::Visualizer, model::Biped;
     setobject!(vis[:robot]["hip"], Sphere(Point3f0(0.0), r), body_mat)
     setobject!(vis[:robot]["torso_top"], Sphere(Point3f0(0.0), r), body_mat)
 
-    return nothing
+    return true
 end
 
 function set_robot!(vis::Visualizer, model::Biped, q;
@@ -95,7 +95,7 @@ function set_robot!(vis::Visualizer, model::Biped, q;
     settransform!(vis[:robot]["hip"], Translation(p_hip))
     settransform!(vis[:robot]["torso_top"], Translation(p_torso))
 
-    return nothing
+    return true
 end
 
 function visualize!(vis, model::Biped, q; 
@@ -118,11 +118,6 @@ function visualize!(vis, model::Biped, q;
             compose(Translation(0.0, -50.0, -1.0),LinearMap(RotZ(-pi / 2.0))))
         setprop!(vis["/Cameras/default/rotated/<object>"], "zoom", 25)
     end
+
+    return true
 end
-
-# vis = Visualizer()
-# open(vis)
-
-# q0 = [0.0; 1.0; 0.01 * π; -0.5 * π; 0.0 * π; -0.01 * π; 0.5 * π; 0.0 * π; -0.0 * π]
-# build_robot!(vis, biped)
-# set_robot!(vis, biped, q0)

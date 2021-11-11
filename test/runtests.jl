@@ -1,12 +1,13 @@
 using Test
-using ForwardDiff
 using JLD2
 using Symbolics
-using StaticArrays
 using LinearAlgebra
 using Random
 using BenchmarkTools
 using RobotDojo
+
+# Utils 
+include("utils.jl")
 
 # Solver
 include("solver/lu.jl")
@@ -21,7 +22,7 @@ include("robots/quadruped.jl")
 # Simulator 
 include("simulator/utils.jl")
 include("simulator/simulate.jl")
-# include("simulator/codegen.jl")
+include("simulator/codegen.jl")
 
 
 
