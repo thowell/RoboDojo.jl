@@ -111,11 +111,8 @@ function Simulator(model, T;
     Simulator(model, policy, dist, traj, grad, ip, idx_z, idx_θ, f, h, stats, sim_opts)
 end
 
-#TODO: change method to take state and control inputs
 function step!(s::Simulator{T}, t::Int) where T
     model = s.model
-    p = s.policy
-    w = s.dist
     traj = s.traj
     grad = s.grad
     ip = s.ip
@@ -123,13 +120,6 @@ function step!(s::Simulator{T}, t::Int) where T
     idx_θ = s.idx_θ
     f = s.f
     h = s.h
-  
-    # policy 
-    policy_time = @elapsed traj.u[t] .= policy(p, traj, t)
-    s.opts.record && (s.stats.policy_time[t] = policy_time)
-
-    # disturbances 
-    traj.w[t] .= disturbances(w, traj.q[t+1], t)
 
     # initialize
     initialize_z!(ip.z, model, idx_z, traj.q[t+1])
@@ -152,7 +142,22 @@ function step!(s::Simulator{T}, t::Int) where T
     # cache gradients
     ip.opts.diff_sol && gradient!(grad, ip.δz, idx_z, idx_θ, t)
 
-    return true
+    return status
+end
+
+function step!(s::Simulator{T}, q::Vector{T}, v::Vector{T}, u::Vector{T}, t::Int) where T
+    # set state
+    set_state!(s, q, v, t)
+
+    # set control 
+    s.traj.u[t] .= u 
+
+    # step 
+    step!(s, t) 
+
+    return s.traj.q[t+2] #TODO: return gradients
+
+
 end
 
 function solution!(traj::Trajectory{T}, z::Vector{T}, idx_z::IndicesZ, h::T, t::Int) where T 
@@ -171,6 +176,7 @@ function solution!(traj::Trajectory{T}, z::Vector{T}, idx_z::IndicesZ, h::T, t::
     # contact impulses
     traj.γ[t] .= γ 
     traj.b[t] .= b
+
     return nothing
 end
 
@@ -195,7 +201,23 @@ function gradient!(grad::GradientTrajectory{T}, δz::Matrix{T}, idx_z::IndicesZ,
     grad.∂b1∂q2[t] .= ∂b1∂q2
     grad.∂b1∂u1[t] .= ∂b1∂u1
 
+    #TODO: velocity gradients
+
     return nothing
+end
+
+function set_state!(s::Simulator{T}, q::Vector{T}, v::Vector{T}, t::Int) where T 
+    # initial configuration and velocity
+    s.traj.q[t+1] .= q # q2
+    s.traj.v[t] .= v   # v1
+
+    #   q1
+    s.traj.q[t] .= v 
+    s.traj.q[t] .*= s.h
+    s.traj.q[t] .*= -1.0
+    s.traj.q[t] .+= q
+    
+    return nothing 
 end
 
 function simulate!(s::Simulator{T}, q::Vector{T}, v::Vector{T}; reset_traj=false) where T
@@ -205,15 +227,8 @@ function simulate!(s::Simulator{T}, q::Vector{T}, v::Vector{T}; reset_traj=false
 
     # reset solver
     
-    # initial configuration and velocity
-    s.traj.q[2] .= q # q2
-    s.traj.v[1] .= v # v1
-
-    #   q1
-    s.traj.q[1] .= v 
-    s.traj.q[1] .*= s.h
-    s.traj.q[1] .*= -1.0
-    s.traj.q[1] .+= q
+    # set initial state
+    set_state!(s, q, v, 1)
 
     # simulate
     eval_simulate!(s)
@@ -221,8 +236,21 @@ end
 
 function eval_simulate!(s::Simulator{T}) where T
     status = false
+
     N = length(s.traj.u)
+    p = s.policy
+    w = s.dist
+    traj = s.traj
+
     for t = 1:N
+        # policy 
+        policy_time = @elapsed traj.u[t] .= policy(p, traj, t)
+        s.opts.record && (s.stats.policy_time[t] = policy_time)
+
+        # disturbances 
+        traj.w[t] .= disturbances(w, traj.q[t+1], t)
+
+        # step
         status = step!(s, t)
         !status && break
     end

@@ -71,7 +71,7 @@ function residual(model::Hopper, mass_matrix, dynamics_bias, kinematics, kinemat
     vT_foot = (rotation_foot * kinematics_foot_jacobian(model, q2) * v1)[1]
 
     # contact forces
-    J = contact_jacobian(model, q2) # TODO: change to Marsden & West convention, i.e., q1
+    J = contact_jacobian(model, q1)
     λ1 = transpose(J) * [transpose(rotation_body) * [b1[1]; γ1[1]];
                          transpose(rotation_foot) * [b1[2]; γ1[2]];
                         γ1[3:4]]

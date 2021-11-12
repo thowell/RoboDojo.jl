@@ -4,7 +4,7 @@
         subject to    x >= 0
     """
 
-    n = 100
+    n = 10
 
     _P = rand(n)
     P = Diagonal(_P)
@@ -18,19 +18,19 @@
 
     # residual
     function _r!(r, z, θ, κ)
-        x = z[1:100]
-        y = z[101:200]
-        P = θ[1:100]
-        q = θ[101:200]
+        x = z[1:10]
+        y = z[11:20]
+        P = θ[1:10]
+        q = θ[11:20]
 
-        r[1:100] = 2.0 * Diagonal(P) * x + q - y
-        r[101:200] = Diagonal(x) * y .- κ[1]
+        r[1:10] = 2.0 * Diagonal(P) * x + q - y
+        r[11:20] = Diagonal(x) * y .- κ[1]
         nothing
     end
 
-    @variables r_sym[1:200]
-    @variables z_sym[1:200]
-    @variables θ_sym[1:200]
+    @variables r_sym[1:20]
+    @variables z_sym[1:20]
+    @variables θ_sym[1:20]
     @variables κ_sym[1:1]
 
     parallel = Symbolics.SerialForm()

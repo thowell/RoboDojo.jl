@@ -86,7 +86,7 @@ include(joinpath("../src/robots/load.jl"))
 export
     hopper, biped, quadruped, 
     nominal_configuration,
-    simulate!, Simulator, 
+    step!, simulate!, Simulator, 
     visualize!, Visualizer,
     friction_coefficients,
     lagrangian, 
