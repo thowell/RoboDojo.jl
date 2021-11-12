@@ -55,9 +55,9 @@
 
     # process timing results
     RobotDojo.process!(s.stats, 1)
-    @test all(s.stats.policy_time .> 0.0)
+    @test sum(s.stats.policy_time) > 0.0
     @test s.stats.policy_mean[1] > 0.0
 
-    @test all(s.stats.sim_time .> 0.0)
+    @test sum(s.stats.sim_time) > 0.0
     @test s.stats.sim_mean[1] > 0.0
 end
