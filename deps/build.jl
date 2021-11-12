@@ -6,7 +6,7 @@ using Pkg
 # ################################################################################
 exampledir = joinpath(@__DIR__, "..", "examples")
 Pkg.activate(exampledir)
-# Pkg.instantiate()
+Pkg.instantiate()
 include(joinpath(exampledir, "generate_notebooks.jl"))
 
 ################################################################################
