@@ -3,11 +3,11 @@ using Pkg
 
 ################################################################################
 # Generate notebooks
-################################################################################
-exampledir = joinpath(@__DIR__, "..", "examples")
-Pkg.activate(exampledir)
-Pkg.instantiate()
-include(joinpath(exampledir, "generate_notebooks.jl"))
+# ################################################################################
+# exampledir = joinpath(@__DIR__, "..", "examples")
+# Pkg.activate(exampledir)
+# Pkg.instantiate()
+# include(joinpath(exampledir, "generate_notebooks.jl"))
 
 ################################################################################
 # Build simulation environments
@@ -19,6 +19,7 @@ Pkg.instantiate()
 using JLD2 
 using Symbolics
 using LinearAlgebra
+using Scratch 
 
 include(joinpath("../src/utils.jl"))
 include(joinpath("../src/simulator/model.jl"))
@@ -34,6 +35,8 @@ include(joinpath("../src/solver/cones.jl"))
 include(joinpath(@__DIR__,"..", "src/robots/hopper/model.jl"))  # hopper special case
 include(joinpath(@__DIR__,"..", "src/robots/hopper/simulator.jl"))
 
+path_robots = @get_scratch!("robots")
+
 robots = [:hopper, :biped, :quadruped]
 
 for robot in robots
@@ -41,7 +44,7 @@ for robot in robots
     include(joinpath(@__DIR__,"..", "src/robots", String(robot), "model.jl"))
 
     # expr path
-    path_expr = joinpath(@__DIR__, "..", "src/robots", String(robot), "expr/expr.jld2")
+    path_expr = joinpath(path_robots, String(robot) * ".jld2")
 
     # kinematics
     contact_kinematics = eval(Symbol(String(robot) * "_contact_kinematics"))
@@ -52,19 +55,3 @@ for robot in robots
     r_model, rz_model, rθ_model = codegen_residual(eval(robot), mass_matrix, dynamics_bias, contact_kinematics, contact_kinematics_jacobians,
         save=true, path=path_expr)
 end
-
-
-
-
-
-# include(joinpath(@__DIR__,"..", "src/robots/biped/model.jl"))
-# model = biped 
-# contact_kinematics = biped_contact_kinematics
-# contact_kinematics_jacobians = biped_contact_kinematics_jacobians 
-# path = joinpath(@__DIR__, "..", "src/robots", String(name(model)), "expr/expr.jld2")
-
-# include(joinpath(@__DIR__,"..", "src/robots/quadruped/model.jl"))
-# model = quadruped 
-# contact_kinematics = quadruped_contact_kinematics
-# contact_kinematics_jacobians = quadruped_contact_kinematics_jacobians 
-# path = joinpath(@__DIR__, "..", "src/robots", String(name(model)), "expr/expr.jld2")

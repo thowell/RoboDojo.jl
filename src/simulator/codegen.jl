@@ -1,5 +1,5 @@
 function codegen_residual(model, mass_matrix, dynamics_bias, contact_kinematics, contact_kinematics_jacobians; 
-    save=false, path=pwd())
+    save=false, path=@__DIR__)
 
     # dimensions
     nz = num_var(model)

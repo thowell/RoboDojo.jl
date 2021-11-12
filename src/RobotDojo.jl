@@ -11,6 +11,7 @@ using CoordinateTransformations
 using Rotations
 using Parameters
 using JLD2
+using Scratch
 
 # Utilities
 include("utils.jl")
