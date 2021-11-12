@@ -4,17 +4,16 @@ using Pkg
 ################################################################################
 # Generate notebooks
 # ################################################################################
-# exampledir = joinpath(@__DIR__, "..", "examples")
-# Pkg.activate(exampledir)
+exampledir = joinpath(@__DIR__, "..", "examples")
+Pkg.activate(exampledir)
 # Pkg.instantiate()
-# include(joinpath(exampledir, "generate_notebooks.jl"))
+include(joinpath(exampledir, "generate_notebooks.jl"))
 
 ################################################################################
 # Build simulation environments
 ################################################################################
 pkgdir = joinpath(@__DIR__, "..")
 Pkg.activate(pkgdir)
-Pkg.instantiate()
 
 using JLD2 
 using Symbolics
