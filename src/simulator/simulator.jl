@@ -156,8 +156,6 @@ function step!(s::Simulator{T}, q::Vector{T}, v::Vector{T}, u::Vector{T}, t::Int
     step!(s, t) 
 
     return s.traj.q[t+2] #TODO: return gradients
-
-
 end
 
 function solution!(traj::Trajectory{T}, z::Vector{T}, idx_z::IndicesZ, h::T, t::Int) where T 
