@@ -31,8 +31,8 @@ include(joinpath("../src/robots/codegen.jl"))
 
 include(joinpath("../src/solver/cones.jl"))
 
-include(joinpath(@__DIR__,"..", "src/robots/hopper/model.jl"))  # hopper special case
-include(joinpath(@__DIR__,"..", "src/robots/hopper/simulator.jl"))
+include(joinpath(@__DIR__, "..", "src/robots/hopper/model.jl"))  # hopper special case
+include(joinpath(@__DIR__, "..", "src/robots/hopper/simulator.jl"))
 
 path_robots = @get_scratch!("robots")
 
@@ -40,7 +40,7 @@ robots = [:hopper, :biped, :quadruped]
 
 for robot in robots
     # robot model
-    include(joinpath(@__DIR__,"..", "src/robots", String(robot), "model.jl"))
+    include(joinpath(@__DIR__, "..", "src/robots", String(robot), "model.jl"))
 
     # expr path
     path_expr = joinpath(path_robots, String(robot) * ".jld2")
