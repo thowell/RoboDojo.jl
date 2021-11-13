@@ -47,8 +47,8 @@
         parallel = parallel)[2])
 
     # options
-    opts = RobotDojo.InteriorPointOptions(diff_sol = true, verbose=false)
-    idx = RobotDojo.IndicesOptimization(
+    opts = RoboDojo.InteriorPointOptions(diff_sol = true, verbose=false)
+    idx = RoboDojo.IndicesOptimization(
             2n, 2n, 
             [collect(1:n), collect(n .+ (1:n))],
             [collect(1:n), collect(n .+ (1:n))], 
@@ -61,7 +61,7 @@
             collect(n .+ (1:n)))
 
     # solver
-    ip = RobotDojo.interior_point(z, θ,
+    ip = RoboDojo.interior_point(z, θ,
         idx=idx,
         r! = rf!, rz! = rzf!, rθ! = rθf!,
         rz = rz_sp,
@@ -69,7 +69,7 @@
         opts = opts)
 
     # solve
-    status = RobotDojo.interior_point_solve!(ip)
+    status = RoboDojo.interior_point_solve!(ip)
 
     # test
     @test status

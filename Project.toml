@@ -1,4 +1,4 @@
-name = "RobotDojo"
+name = "RoboDojo"
 uuid = "2859eb88-988f-4613-a49e-c643bedbc906"
 authors = ["thowell <thowell@stanford.edu>", "simon-lc <simonlc@stanford.edu>"]
 version = "0.1.0"

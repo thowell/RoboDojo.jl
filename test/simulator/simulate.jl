@@ -7,7 +7,7 @@
     T = 100
 
     # simulator 
-    s = Simulator(hopper, T, h=h, diff_sol=true, sim_opts=RobotDojo.SimulatorOptions(record=true))
+    s = Simulator(hopper, T, h=h, diff_sol=true, sim_opts=RoboDojo.SimulatorOptions(record=true))
 
     # step
     q2 = step!(s, q1, v1, zeros(hopper.nu), 1)
@@ -25,7 +25,7 @@
     T = 100
 
     # simulator 
-    s = Simulator(quadruped, T, h=h, diff_sol=true, sim_opts=RobotDojo.SimulatorOptions(record=true))
+    s = Simulator(quadruped, T, h=h, diff_sol=true, sim_opts=RoboDojo.SimulatorOptions(record=true))
 
     # step
     q2 = step!(s, q1, v1, zeros(quadruped.nu), 1)
@@ -43,7 +43,7 @@
     T = 100
 
     # simulator 
-    s = Simulator(biped, T, h=h, diff_sol=true, sim_opts=RobotDojo.SimulatorOptions(record=true))
+    s = Simulator(biped, T, h=h, diff_sol=true, sim_opts=RoboDojo.SimulatorOptions(record=true))
 
     # step
     q2 = step!(s, q1, v1, zeros(biped.nu), 1)
@@ -54,7 +54,7 @@
     @test status
 
     # process timing results
-    RobotDojo.process!(s.stats, 1)
+    RoboDojo.process!(s.stats, 1)
     @test sum(s.stats.policy_time) > 0.0
     @test s.stats.policy_mean[1] > 0.0
 
