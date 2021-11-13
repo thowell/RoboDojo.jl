@@ -1,3 +1,4 @@
+
 q1 = nominal_configuration(biped)
 v1 = zeros(biped.nq)
 
