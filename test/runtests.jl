@@ -4,7 +4,7 @@ using Symbolics
 using LinearAlgebra
 using Random
 using BenchmarkTools
-using RobotDojo
+using RoboDojo
 
 # Utils 
 include("utils.jl")

@@ -1,4 +1,4 @@
-module RobotDojo
+module RoboDojo
 
 using LinearAlgebra
 using Symbolics

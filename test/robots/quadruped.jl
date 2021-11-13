@@ -4,6 +4,6 @@
     @test norm(lagrangian(quadruped, q0, v0)) < 1.0e-8
 
     # visualize
-    vis = RobotDojo.Visualizer();
+    vis = RoboDojo.Visualizer();
     @test visualize!(vis, quadruped, [q0], Δt=0.1);
 end

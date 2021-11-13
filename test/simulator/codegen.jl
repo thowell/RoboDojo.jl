@@ -4,12 +4,12 @@
 
     for robot in robots 
         # kinematics
-        contact_kinematics = RobotDojo.eval(Symbol(String(RobotDojo.name(robot)) * "_contact_kinematics"))
-        contact_kinematics_jacobians = RobotDojo.eval(Symbol(String(RobotDojo.name(robot)) * "_contact_kinematics_jacobians"))
+        contact_kinematics = RoboDojo.eval(Symbol(String(RoboDojo.name(robot)) * "_contact_kinematics"))
+        contact_kinematics_jacobians = RoboDojo.eval(Symbol(String(RoboDojo.name(robot)) * "_contact_kinematics_jacobians"))
 
         # codegen
-        mass_matrix, dynamics_bias = RobotDojo.codegen_dynamics(robot)
-        r_model, rz_model, rθ_model = RobotDojo.codegen_residual(robot, mass_matrix, dynamics_bias, contact_kinematics, contact_kinematics_jacobians)
+        mass_matrix, dynamics_bias = RoboDojo.codegen_dynamics(robot)
+        r_model, rz_model, rθ_model = RoboDojo.codegen_residual(robot, mass_matrix, dynamics_bias, contact_kinematics, contact_kinematics_jacobians)
 
         # evaluate methods
         nz = num_var(robot) 
