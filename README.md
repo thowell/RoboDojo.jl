@@ -4,7 +4,7 @@
 
 A differentiable simulator for robotic systems. This repository includes models for planar hopper, biped, and quadruped systems. 
 
-Systems are represented in minimal coordinates and contact impulses are computed at each time step by solving a [nonlinear complementarity problem (NCP)](https://en.wikipedia.org/wiki/Nonlinear_complementarity_problem) using a bespoke [path-following solver](src/solver/interior_point.jl). Gradients through the dynamics are efficiently computed via the [implicit-function theorem](https://en.wikipedia.org/wiki/Implicit_function_theorem) applied to the optimality conditions of the NCP.
+Systems are represented in minimal coordinates and contact impulses are computed at each time step by solving a [nonlinear complementarity problem (NCP)](https://en.wikipedia.org/wiki/Nonlinear_complementarity_problem) using a bespoke [path-following solver](src/solver/interior_point.jl). Gradients through the dynamics are efficiently computed via the [implicit-function theorem](https://en.wikipedia.org/wiki/Implicit_function_theorem) applied to the NCP optimality conditions.
 
 For more details, see our paper: [Fast Contact-Implicit Model-Predictive Control](https://arxiv.org/abs/2107.05616) and the related [repository](https://github.com/thowell/ContactImplicitMPC.jl).
 
@@ -17,10 +17,13 @@ git clone https://github.com/thowell/RoboDojo.jl
 
 ## Systems
 ### Hopper 
+<img src="examples/img/hopper" alt="drawing" width="200"/>
 
 ### Biped 
+<img src="examples/img/biped" alt="drawing" width="200"/>
 
 ### Quadruped 
+<img src="examples/img/quadruped" alt="drawing" width="200"/>
 
 ## Coming Soon 
 - [ ] documentation 

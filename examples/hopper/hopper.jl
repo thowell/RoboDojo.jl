@@ -8,5 +8,6 @@ s = Simulator(hopper, T, h=h)
 simulate!(s, q1, v1)
 
 vis = Visualizer()
+RoboDojo.render(vis)
 open(vis)
 visualize!(vis, s)

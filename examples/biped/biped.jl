@@ -10,5 +10,6 @@ status = simulate!(s, q1, v1)
 
 vis = Visualizer()
 open(vis)
-visualize!(vis, s)
+visualize!(vis, biped, [q1])
 
+q1 = [0.0; 0.8; -0.01; -0.15 * π; 0.1 * π; 0.0; -0.15 * π; 0.1 * π; 0.0]
