@@ -8,8 +8,6 @@ Systems are represented in minimal coordinates and contact impulses are computed
 
 For more details, see our paper: [Fast Contact-Implicit Model-Predictive Control](https://arxiv.org/abs/2107.05616) and the related [repository](https://github.com/thowell/ContactImplicitMPC.jl).
 
-If you are interested in using this package for your research or there are features you would like implemented, please reach out to [Taylor](thowell@stanford.edu) or [Simon](simon-lc@stanford.edu).
-
 ## Installation
 ``` 
 git clone https://github.com/thowell/RoboDojo.jl
@@ -17,13 +15,13 @@ git clone https://github.com/thowell/RoboDojo.jl
 
 ## Systems
 ### Hopper 
-<img src="examples/img/hopper" alt="drawing" width="200"/>
+<img src="examples/img/hopper" width="200"/>
 
 ### Biped 
-<img src="examples/img/biped" alt="drawing" width="200"/>
+<img src="examples/img/biped" width="200"/>
 
 ### Quadruped 
-<img src="examples/img/quadruped" alt="drawing" width="200"/>
+<img src="examples/img/quadruped" width="200"/>
 
 ## Coming Soon 
 - [ ] documentation 
