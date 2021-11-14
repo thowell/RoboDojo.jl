@@ -15,13 +15,13 @@ git clone https://github.com/thowell/RoboDojo.jl
 
 ## Systems
 ### Hopper 
-<img src="examples/img/hopper" width="200"/>
+<img src="examples/img/hopper.png" width="200"/>
 
 ### Biped 
-<img src="examples/img/biped" width="200"/>
+<img src="examples/img/biped.png" width="200"/>
 
 ### Quadruped 
-<img src="examples/img/quadruped" width="200"/>
+<img src="examples/img/quadruped.png" width="200"/>
 
 ## Coming Soon 
 - [ ] documentation 
