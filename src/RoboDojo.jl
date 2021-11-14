@@ -54,36 +54,6 @@ include(joinpath("../src/robots/codegen.jl"))
 
 include(joinpath("../src/robots/load.jl"))
 
-# load simulation environments
-
-# RESIDUAL_EXPR = Dict{String, Any}()
-# residual_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_r"]
-# jacobian_var_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_rz"]
-# jacobian_data_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_rθ"]
-
-# model = hopper 
-# path = joinpath(@__DIR__, "robots", String(name(model)), "expr/expr.jld2")
-# @load path r_model rz_model rθ_model
-# RESIDUAL_EXPR[String(name(model)) * "_r"] = eval(r_model)
-# RESIDUAL_EXPR[String(name(model)) * "_rz"] = eval(rz_model)
-# RESIDUAL_EXPR[String(name(model)) * "_rθ"] = eval(rθ_model)
-
-# model = biped 
-# path = joinpath(@__DIR__, "robots", String(name(model)), "expr/expr.jld2")
-# @load path r_model rz_model rθ_model
-# RESIDUAL_EXPR[String(name(model)) * "_r"] = eval(r_model)
-# RESIDUAL_EXPR[String(name(model)) * "_rz"] = eval(rz_model)
-# RESIDUAL_EXPR[String(name(model)) * "_rθ"] = eval(rθ_model)
-
-# model = quadruped 
-# path = joinpath(@__DIR__, "robots", String(name(model)), "expr/expr.jld2")
-# @load path r_model rz_model rθ_model
-# RESIDUAL_EXPR[String(name(model)) * "_r"] = eval(r_model)
-# RESIDUAL_EXPR[String(name(model)) * "_rz"] = eval(rz_model)
-# RESIDUAL_EXPR[String(name(model)) * "_rθ"] = eval(rθ_model)
-
-# Policy
-
 export
     hopper, biped, quadruped, 
     nominal_configuration,

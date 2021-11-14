@@ -1,5 +1,4 @@
-function codegen_residual(model, mass_matrix, dynamics_bias, contact_kinematics, contact_kinematics_jacobians; 
-    save=false, path=@__DIR__)
+function codegen_residual(model, mass_matrix, dynamics_bias, contact_kinematics, contact_kinematics_jacobians)
 
     # dimensions
     nz = num_var(model)
@@ -15,9 +14,6 @@ function codegen_residual(model, mass_matrix, dynamics_bias, contact_kinematics,
     r_model = Symbolics.build_function(r, z, θ, μ)[2]
     rz_model = Symbolics.build_function(rz, z, θ)[2]
     rθ_model = Symbolics.build_function(rθ, z, θ)[2]
-
-    # save 
-    save && (@save path r_model rz_model rθ_model)
 
     return r_model, rz_model, rθ_model 
 end
