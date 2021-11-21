@@ -1,7 +1,7 @@
 
 @with_kw struct SimulatorOptions{T}
-    warmstart::Bool=true
-    record::Bool=false
+    warmstart::Bool=false
+    record::Bool=true
     z_warmstart::T=0.001
     κ_warmstart::T=0.001
 	failure_abort::Int=50
@@ -79,8 +79,7 @@ function Simulator(model, T;
             diff_sol=diff_sol,
             verbose=false),
         stats=SimulatorStatistics(T),
-        sim_opts=SimulatorOptions()
-        )
+        sim_opts=SimulatorOptions())
     
     idx_z = indices_z(model)
     idx_θ = indices_θ(model, nf=length(f))
@@ -209,7 +208,7 @@ function set_state!(s::Simulator{T}, q::Vector{T}, v::Vector{T}, t::Int) where T
     s.traj.q[t+1] .= q # q2
     s.traj.v[t] .= v   # v1
 
-    #   q1
+    # q1
     s.traj.q[t] .= v 
     s.traj.q[t] .*= s.h
     s.traj.q[t] .*= -1.0

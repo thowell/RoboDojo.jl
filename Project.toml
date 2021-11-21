@@ -1,7 +1,7 @@
 name = "RoboDojo"
 uuid = "2859eb88-988f-4613-a49e-c643bedbc906"
 authors = ["thowell <thowell@stanford.edu>", "simon-lc <simonlc@stanford.edu>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
@@ -25,7 +25,7 @@ GeometryBasics = "0.3"
 JLD2 = "0.4"
 MeshCat = "0.13 - 0.14"
 Parameters = "0.12"
-Rotations = "1.0"
+Rotations = "1.0.2"
 Scratch = "1.0"
 Symbolics = "0.1.29"
 julia = "1.6"

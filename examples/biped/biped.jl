@@ -1,15 +1,28 @@
+# PREAMBLE
 
+# PKG_SETUP
+
+# ## Setup
+
+using RoboDojo 
+
+# ## Initial conditions
 q1 = nominal_configuration(biped)
 v1 = zeros(biped.nq)
 
+# ## Time
 h = 0.01
 T = 100
 
+# ## Simulator
 s = Simulator(biped, T, h=h)
+
+# ## Simulate
 status = simulate!(s, q1, v1)
 
+# ## Visualizer
 vis = Visualizer()
-open(vis)
-visualize!(vis, biped, [q1])
+render(vis)
 
-q1 = [0.0; 0.8; -0.01; -0.15 * π; 0.1 * π; 0.0; -0.15 * π; 0.1 * π; 0.0]
+# ## Visualize
+visualize!(vis, s)
