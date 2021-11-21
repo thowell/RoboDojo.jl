@@ -62,6 +62,7 @@ export
     friction_coefficients,
     lagrangian, 
     num_var, num_data, 
-    residual
+    residual,  
+    render, open
 
 end # module

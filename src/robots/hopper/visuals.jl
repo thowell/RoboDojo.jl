@@ -41,18 +41,18 @@ function visualize!(vis, model::Hopper, q; Δt = 0.1, fixed_camera=true)
         z_shift = [0.0; 0.0; 0.0]
 
         MeshCat.atframe(anim, t) do
-            settransform!(vis["body"], Translation(p_body + z_shift))
-            settransform!(vis["foot"], Translation(p_foot + z_shift))
+            MeshCat.settransform!(vis["body"], MeshCat.compose(MeshCat.Translation(p_body + z_shift), MeshCat.LinearMap(Rotations.RotY(0.0))))
+            MeshCat.settransform!(vis["foot"], MeshCat.compose(MeshCat.Translation(p_foot + z_shift), MeshCat.LinearMap(Rotations.RotY(0.0))))
 
             for i = 1:n_leg
-                settransform!(vis["leg$i"], Translation(p_leg[i] + z_shift))
+                MeshCat.settransform!(vis["leg$i"], MeshCat.compose(MeshCat.Translation(p_leg[i] + z_shift), MeshCat.LinearMap(Rotations.RotY(0.0))))
             end
         end
     end
 
     if fixed_camera 
-        settransform!(vis["/Cameras/default"],
-        compose(Translation(0.0, -50.0, -1.0),LinearMap(RotZ(-pi / 2.0))))
+        MeshCat.settransform!(vis["/Cameras/default"],
+        MeshCat.compose(MeshCat.Translation(0.0, -50.0, -1.0), MeshCat.LinearMap(Rotations.RotZ(-pi / 2.0))))
         setprop!(vis["/Cameras/default/rotated/<object>"], "zoom", 25)
     end
 
