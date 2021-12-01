@@ -64,13 +64,13 @@ mutable struct Biped{T} <: Model{T}
 	m_foot2::T
 	J_foot2::T
 
-	 # joint friction 
-	 friction_joint::Vector{T} 
+	# joint friction 
+	friction_joint::Vector{T} 
  
-	 # environment 
-	 friction_body_world::Vector{T} 
-	 friction_foot_world::Vector{T} 
-	 gravity::T
+	# environment 
+	friction_body_world::Vector{T} 
+	friction_foot_world::Vector{T} 
+	gravity::T
 end
 
 function kinematics_body(model::Biped, q; mode=:none) 

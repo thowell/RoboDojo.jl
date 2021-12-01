@@ -1,3 +1,4 @@
+using Symbolics
 nq = 3 + 4 + 3 # position + quaternion + leg joints
 
 function quaternion_rotation_matrix(q)
@@ -55,10 +56,31 @@ end
 q0 = [0.0; 0.0; 0.0; 1.0; 0.0; 0.0; 0.0; 0.0; 0.0; 0.0] 
 foot_kinematics(q0)
 
-@variables q[1:nq] q̇[1:nq]
+@variables q[1:nq] q̇[1:nq] mass[1:1] λ[1:nq] ψ[1:3]
 
 k = foot_kinematics(q)
 j = Symbolics.jacobian(k, q)
+
+# mass matrix 
+mass_matrix = mass[1] * transpose(j) * j
+
+jλ = j * λ
+∂jλ = Symbolics.jacobian(jλ, q)
+
+ψ∂jλ = transpose(∂jλ) * ψ 
+∂ψ∂jλ∂q = Symbolics.jacobian(ψ∂jλ, q) 
+
+# mass matrix derivative 
+∂Mλ∂q = 2.0 * mass[1] * transpose(j) * ∂jλ
+
+# dynamics bias 
+dynamics_bias = mass[1] * transpose(j) * ∂jλ * λ 
+
+# dynamics bias derivative  
+∂db∂q̇ = 2.0 * mass[1] * transpose(j) * ∂jλ
+∂db∂q = mass[1] * (∂ψ∂jλ∂q + transpose(∂jλ) * ∂jλ)
+
+
 
 k_func = eval(Symbolics.build_function(k, q)[1])
 j_func = eval(Symbolics.build_function(j, q)[1])

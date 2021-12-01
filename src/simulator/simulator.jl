@@ -1,4 +1,3 @@
-
 @with_kw struct SimulatorOptions{T}
     warmstart::Bool=false
     record::Bool=true

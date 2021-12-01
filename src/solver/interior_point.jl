@@ -146,7 +146,7 @@ function interior_point(z, θ;
 end
 
 # interior point solver
-function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
+function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ} #TODO: change to solve!
 
     # space
     s = ip.s
@@ -349,7 +349,12 @@ function centering(z::AbstractVector{T}, Δaff::AbstractVector{T},
     # See Section 5.1.3 in CVXOPT
     # μ only depends on the dot products (no cone product)
     # The CVXOPT linear and quadratic cone program solvers
-    n = 10 # length(ortz[1]) + sum(length.(socΔ[1]))
+    
+    n = length(ortz[1])
+    for sc in socΔ[1] 
+        n += length(sc) 
+    end
+
     # ineq
     zo1 = @views z[ortz[1]]
     zo2 = @views z[ortz[2]]
