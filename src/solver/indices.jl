@@ -36,3 +36,16 @@ function IndicesOptimization()
 		v1, v1, v1, v2, v1)
 	return s
 end
+
+a = Vector{Vector{Int}}()
+b = Vector{Vector{Vector{Int}}}()
+isempty(a)
+isempty(b)
+
+c = [[collect(1:0), collect(1:0)], [collect(1:0), collect(1:0)]]
+isempty(c)
+
+for bi in b 
+	@show bi 
+end
+

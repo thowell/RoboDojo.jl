@@ -350,9 +350,9 @@ function centering(z::AbstractVector{T}, Δaff::AbstractVector{T},
     # μ only depends on the dot products (no cone product)
     # The CVXOPT linear and quadratic cone program solvers
     
-    n = length(ortz[1])
-    for sc in socΔ[1] 
-        n += length(sc) 
+    n = isempty(ortz[1]) ? 0 : length(ortz[1])
+    for sc in socz 
+        n += isempty(sc[1]) ? 0 : length(sc[1]) 
     end
 
     # ineq
