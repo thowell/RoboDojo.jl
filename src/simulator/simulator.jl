@@ -143,7 +143,7 @@ function step!(s::Simulator{T}, t::Int) where T
     return status
 end
 
-function step!(s::Simulator{T}, q::Vector{T}, v::Vector{T}, u::Vector{T}, t::Int) where T
+function step!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T}, u::AbstractVector{T}, t::Int) where T
     # set state
     set_state!(s, q, v, t)
 
@@ -202,7 +202,7 @@ function gradient!(grad::GradientTrajectory{T}, δz::Matrix{T}, idx_z::IndicesZ,
     return nothing
 end
 
-function set_state!(s::Simulator{T}, q::Vector{T}, v::Vector{T}, t::Int) where T 
+function set_state!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T}, t::Int) where T 
     # initial configuration and velocity
     s.traj.q[t+1] .= q # q2
     s.traj.v[t] .= v   # v1
@@ -216,7 +216,7 @@ function set_state!(s::Simulator{T}, q::Vector{T}, v::Vector{T}, t::Int) where T
     return nothing 
 end
 
-function simulate!(s::Simulator{T}, q::Vector{T}, v::Vector{T}; reset_traj=false) where T
+function simulate!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T}; reset_traj=false) where T
     # reset trajectory
     reset_traj && reset!(s.traj) 
     reset_traj && reset!(s.grad)

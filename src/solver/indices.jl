@@ -44,7 +44,9 @@ isempty(b)
 
 c = [[collect(1:0), collect(1:0)], [collect(1:0), collect(1:0)]]
 isempty(c)
-
+isempty(c[1])
+length(c[1][1])
+c[1][1]
 for bi in b 
 	@show bi 
 end
