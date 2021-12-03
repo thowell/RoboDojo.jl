@@ -109,7 +109,7 @@ function Simulator(model, T;
     Simulator(model, policy, dist, traj, grad, ip, idx_z, idx_θ, f, h, stats, sim_opts)
 end
 
-function step!(s::Simulator{T}, t::Int) where T
+function step!(s::Simulator{T}, t::Int; verbose=false) where T
     model = s.model
     traj = s.traj
     grad = s.grad
@@ -129,8 +129,8 @@ function step!(s::Simulator{T}, t::Int) where T
 
     # status check
     if !status 
-        @show norm(ip.r) 
-        @warn "residual failure"
+        verbose && (@show norm(ip.r))
+        verbose && (@warn "residual failure")
         return false
     end
 
@@ -138,12 +138,12 @@ function step!(s::Simulator{T}, t::Int) where T
     solution!(traj, ip.z, idx_z, h, t)
 
     # cache gradients
-    ip.opts.diff_sol && gradient!(grad, ip.δz, idx_z, idx_θ, t)
+    ip.opts.diff_sol && gradient!(grad, h, ip.δz, idx_z, idx_θ, t)
 
     return status
 end
 
-function step!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T}, u::AbstractVector{T}, t::Int) where T
+function step!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T}, u::AbstractVector{T}, t::Int; verbose=false) where T
     # set state
     set_state!(s, q, v, t)
 
@@ -151,7 +151,7 @@ function step!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T}, u::A
     s.traj.u[t] .= u 
 
     # step 
-    step!(s, t) 
+    step!(s, t, verbose=verbose) 
 
     return s.traj.q[t+2] #TODO: return gradients
 end
@@ -176,7 +176,7 @@ function solution!(traj::Trajectory{T}, z::Vector{T}, idx_z::IndicesZ, h::T, t::
     return nothing
 end
 
-function gradient!(grad::GradientTrajectory{T}, δz::Matrix{T}, idx_z::IndicesZ, idx_θ::Indicesθ, t::Int) where T
+function gradient!(grad::GradientTrajectory{T}, h::T, δz::Matrix{T}, idx_z::IndicesZ, idx_θ::Indicesθ, t::Int) where T
     ∂q3∂q1 = @views δz[idx_z.q, idx_θ.q1]
     ∂q3∂q2 = @views δz[idx_z.q, idx_θ.q2]
     ∂q3∂u1 = @views δz[idx_z.q, idx_θ.u]
@@ -190,14 +190,26 @@ function gradient!(grad::GradientTrajectory{T}, δz::Matrix{T}, idx_z::IndicesZ,
     grad.∂q3∂q1[t] .= ∂q3∂q1
     grad.∂q3∂q2[t] .= ∂q3∂q2
     grad.∂q3∂u1[t] .= ∂q3∂u1
+
     grad.∂γ1∂q1[t] .= ∂γ1∂q1
     grad.∂γ1∂q2[t] .= ∂γ1∂q2
     grad.∂γ1∂u1[t] .= ∂γ1∂u1
+
     grad.∂b1∂q1[t] .= ∂b1∂q1
     grad.∂b1∂q2[t] .= ∂b1∂q2
     grad.∂b1∂u1[t] .= ∂b1∂u1
 
-    #TODO: velocity gradients
+    grad.∂q3∂v1[t] .= ∂q3∂q2
+    grad.∂q3∂v1[t] .-= ∂q3∂q1
+    grad.∂q3∂v1[t] ./= h
+
+    grad.∂γ1∂v1[t] .= ∂γ1∂q2
+    grad.∂γ1∂v1[t] .-= ∂γ1∂q1
+    grad.∂γ1∂v1[t] ./= h
+
+    grad.∂b1∂v1[t] .= ∂b1∂q2
+    grad.∂b1∂v1[t] .-= ∂b1∂q1
+    grad.∂b1∂v1[t] ./= h
 
     return nothing
 end
@@ -216,7 +228,8 @@ function set_state!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T},
     return nothing 
 end
 
-function simulate!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T}; reset_traj=false) where T
+function simulate!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T}; 
+        reset_traj=false, verbose=false) where T
     # reset trajectory
     reset_traj && reset!(s.traj) 
     reset_traj && reset!(s.grad)
@@ -227,10 +240,10 @@ function simulate!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T}; 
     set_state!(s, q, v, 1)
 
     # simulate
-    eval_simulate!(s)
+    simulate!(s, verbose=verbose)
 end
 
-function eval_simulate!(s::Simulator{T}) where T
+function simulate!(s::Simulator{T}; verbose=false) where T
     status = false
 
     N = length(s.traj.u)
@@ -247,7 +260,7 @@ function eval_simulate!(s::Simulator{T}) where T
         traj.w[t] .= disturbances(w, traj.q[t+1], t)
 
         # step
-        status = step!(s, t)
+        status = step!(s, t, verbose=verbose)
         !status && break
     end
     return status

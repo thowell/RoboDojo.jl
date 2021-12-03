@@ -40,12 +40,15 @@ end
 struct GradientTrajectory{T} 
     ∂q3∂q1::Vector{Matrix{T}}
     ∂q3∂q2::Vector{Matrix{T}}
+    ∂q3∂v1::Vector{Matrix{T}}
     ∂q3∂u1::Vector{Matrix{T}}
     ∂γ1∂q1::Vector{Matrix{T}} 
     ∂γ1∂q2::Vector{Matrix{T}}
+    ∂γ1∂v1::Vector{Matrix{T}}
     ∂γ1∂u1::Vector{Matrix{T}}
     ∂b1∂q1::Vector{Matrix{T}}
     ∂b1∂q2::Vector{Matrix{T}}
+    ∂b1∂v1::Vector{Matrix{T}}
     ∂b1∂u1::Vector{Matrix{T}}
 end
 
@@ -55,17 +58,20 @@ function GradientTrajectory(model, T; nc=model.nc, nb=model.nc)
 
     ∂q3∂q1 = [zeros(nq, nq) for t = 1:T]
     ∂q3∂q2 = [zeros(nq, nq) for t = 1:T]
+    ∂q3∂v1 = [zeros(nq, nq) for t = 1:T]
     ∂q3∂u1 = [zeros(nq, nu) for t = 1:T]
     ∂γ1∂q1 = [zeros(nc, nq) for t = 1:T]
     ∂γ1∂q2 = [zeros(nc, nq) for t = 1:T]
+    ∂γ1∂v1 = [zeros(nc, nq) for t = 1:T]
     ∂γ1∂u1 = [zeros(nc, nu) for t = 1:T]
     ∂b1∂q1 = [zeros(nb, nq) for t = 1:T]
     ∂b1∂q2 = [zeros(nb, nq) for t = 1:T]
+    ∂b1∂v1 = [zeros(nb, nq) for t = 1:T]
     ∂b1∂u1 = [zeros(nb, nu) for t = 1:T]
 
-    GradientTrajectory(∂q3∂q1, ∂q3∂q2, ∂q3∂u1, 
-                       ∂γ1∂q1, ∂γ1∂q2, ∂γ1∂u1,
-                       ∂b1∂q1, ∂b1∂q2, ∂b1∂u1)
+    GradientTrajectory(∂q3∂q1, ∂q3∂q2, ∂q3∂v1, ∂q3∂u1, 
+                       ∂γ1∂q1, ∂γ1∂q2, ∂γ1∂v1, ∂γ1∂u1,
+                       ∂b1∂q1, ∂b1∂q2, ∂b1∂v1, ∂b1∂u1)
 end
 
 function reset!(traj::GradientTrajectory) 
@@ -73,12 +79,15 @@ function reset!(traj::GradientTrajectory)
     for t = 1:T
         fill!(traj.∂q3∂q1[t], 0.0)
         fill!(traj.∂q3∂q2[t], 0.0)
+        fill!(traj.∂q3∂v1[t], 0.0)
         fill!(traj.∂q3∂u1[t], 0.0)
         fill!(traj.∂γ1∂q1[t], 0.0)
         fill!(traj.∂γ1∂q2[t], 0.0)
+        fill!(traj.∂γ1∂v1[t], 0.0)
         fill!(traj.∂γ1∂u1[t], 0.0)
         fill!(traj.∂b1∂q1[t], 0.0)
         fill!(traj.∂b1∂q2[t], 0.0)
+        fill!(traj.∂b1∂v1[t], 0.0)
         fill!(traj.∂b1∂u1[t], 0.0)
     end
     return nothing
