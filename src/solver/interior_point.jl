@@ -351,7 +351,7 @@ function centering(z::AbstractVector{T}, Δaff::AbstractVector{T},
     # The CVXOPT linear and quadratic cone program solvers
     n = isempty(ortz[1]) ? 0 : length(ortz[1])
     for sc in socz 
-        n += isempty(sc[1]) ? 0 : length(sc[1]) 
+        n += isempty(sc[1]) ? 0 : 1 # dimension of each soc "variable" is 1
     end
 
     # ineq

@@ -20,19 +20,19 @@ using Symbolics
 using LinearAlgebra
 using Scratch 
 
-include(joinpath("../src/utils.jl"))
-include(joinpath("../src/simulator/model.jl"))
-include(joinpath("../src/simulator/dimensions.jl"))
-include(joinpath("../src/simulator/residual.jl"))
-include(joinpath("../src/simulator/codegen.jl"))
+include("../src/utils.jl")
+include("../src/simulator/model.jl")
+include("../src/simulator/dimensions.jl")
+include("../src/simulator/residual.jl")
+include("../src/simulator/codegen.jl")
 
-include(joinpath("../src/robots/integrator.jl"))
-include(joinpath("../src/robots/codegen.jl"))
+include("../src/robots/integrator.jl")
+include("../src/robots/codegen.jl")
 
-include(joinpath("../src/solver/cones.jl"))
+include("../src/solver/cones.jl")
 
-include(joinpath("../src/robots/hopper/model.jl"))  # hopper special case
-include(joinpath("../src/robots/hopper/simulator.jl"))
+include("../src/robots/hopper/model.jl")  # hopper special case
+include("../src/robots/hopper/simulator.jl")
 
 path_robots = @get_scratch!("robots")
 
