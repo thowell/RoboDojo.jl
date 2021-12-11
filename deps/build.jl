@@ -12,8 +12,9 @@ include(joinpath(exampledir, "generate_notebooks.jl"))
 ################################################################################
 # Build simulation environments
 ################################################################################
-pkgdir = joinpath(@__DIR__, "..")
-Pkg.activate(pkgdir)
+depdir = joinpath(@__DIR__)
+Pkg.activate(depdir)
+Pkg.instantiate()
 
 using JLD2 
 using Symbolics
