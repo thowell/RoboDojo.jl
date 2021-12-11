@@ -12,13 +12,14 @@ include(joinpath(exampledir, "generate_notebooks.jl"))
 ################################################################################
 # Build simulation environments
 ################################################################################
-pkgdir = joinpath(@__DIR__, "..")
-Pkg.activate(pkgdir)
+robotdir = joinpath(@__DIR__, "..", "src/robots")
+Pkg.activate(robotdir)
+Pkg.instantiate()
 
+using JLD2 
 using Symbolics
 using LinearAlgebra
 using Scratch 
-using JLD2 
 
 include("../src/utils.jl")
 include("../src/simulator/model.jl")
@@ -34,6 +35,8 @@ include("../src/solver/cones.jl")
 include("../src/robots/hopper/model.jl")  # hopper special case
 include("../src/robots/hopper/simulator.jl")
 
+pkgdir = joinpath(@__DIR__, "..")
+Pkg.activate(pkgdir)
 path_robots = @get_scratch!("robots")
 
 robots = [:hopper, :biped, :quadruped]
