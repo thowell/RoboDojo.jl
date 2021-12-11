@@ -12,14 +12,13 @@ include(joinpath(exampledir, "generate_notebooks.jl"))
 ################################################################################
 # Build simulation environments
 ################################################################################
-depdir = joinpath(@__DIR__)
-Pkg.activate(depdir)
-Pkg.instantiate()
+pkgdir = joinpath(@__DIR__, "..")
+Pkg.activate(pkgdir)
 
-using JLD2 
 using Symbolics
 using LinearAlgebra
 using Scratch 
+using JLD2 
 
 include("../src/utils.jl")
 include("../src/simulator/model.jl")
