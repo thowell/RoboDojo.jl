@@ -1,7 +1,6 @@
 function codegen_dynamics(model)
     # dimensions
     nq = model.nq
-    nf = length(friction_coefficients(model))
 
     # variables
     @variables q[1:nq] q̇[1:nq]

@@ -5,7 +5,7 @@ jacobian_data_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_rθ"]
 
 path_robots = @get_scratch!("robots")
 
-robots = [hopper, biped, quadruped]
+robots = [hopper, biped, quadruped, box]
 
 for robot in robots
     path = joinpath(path_robots, String(name(robot)) * ".jld2")

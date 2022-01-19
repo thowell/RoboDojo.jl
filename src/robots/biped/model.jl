@@ -458,7 +458,7 @@ end
 
 # friction_coefficients
 function friction_coefficients(model::Biped) 
-	return [model.friction_body_world; model.friction_foot_world]
+	return [model.friction_foot_world; model.friction_body_world]
 end
 
 # dimensions

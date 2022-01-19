@@ -17,5 +17,5 @@
 
     # visualizer 
     vis = RoboDojo.Visualizer();
-    @test visualize!(vis, hopper, [q0], Δt = 0.1);
+    @test visualize!(vis, hopper, [q0], Δt=0.1);
 end

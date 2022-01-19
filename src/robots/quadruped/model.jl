@@ -339,7 +339,7 @@ function kinematics(model::Quadruped, q)
      p_foot_1; p_foot_2; p_foot_3; p_foot_4; 
      p_knee_1; p_knee_2; p_knee_3; p_knee_4; 
      p_hip_1; p_hip_2
-     ]
+    ]
 end
 
 # Lagrangian
@@ -480,7 +480,7 @@ end
 
 # friction coefficients 
 function friction_coefficients(model::Quadruped) 
-    [model.friction_body_world; model.friction_foot_world]
+    [model.friction_foot_world; model.friction_body_world]
 end
 
 # dimensions

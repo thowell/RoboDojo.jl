@@ -55,7 +55,7 @@ include(joinpath("../src/robots/codegen.jl"))
 include(joinpath("../src/robots/load.jl"))
 
 export
-    hopper, biped, quadruped, 
+    hopper, biped, quadruped, box,
     nominal_configuration,
     step!, simulate!, Simulator, 
     visualize!, Visualizer,

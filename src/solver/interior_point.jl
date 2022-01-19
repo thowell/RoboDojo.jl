@@ -45,7 +45,7 @@ function mapping!(δz, s::Euclidean, δzs, z) # TODO: make allocation free
 end
 
 # interior-point solver options
-@with_kw mutable struct InteriorPointOptions{T} #<: AbstractIPOptions
+@with_kw mutable struct InteriorPointOptions{T}
     r_tol::T = 1.0e-5
     κ_tol::T = 1.0e-5
     ls_scale::T = 0.5
@@ -64,7 +64,7 @@ end
         # simulation choose γ_reg = 0.1
         # MPC choose γ_reg = 0.0
     solver::Symbol = :lu_solver
-    undercut::T = 5.0 # the solver will aim at reaching κ_vio = κ_tol / undercut
+    undercut::T = 2.0 # the solver will aim at reaching κ_vio = κ_tol / undercut
         # simulation: Inf
         # MPC: 5.0
     verbose::Bool = false
@@ -141,8 +141,7 @@ function interior_point(z, θ;
         zsoc, 
         Δsoc, 
         ρv, 
-        idx_soce
-        )
+        idx_soce)
 end
 
 # interior point solver

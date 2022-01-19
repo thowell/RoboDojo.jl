@@ -39,7 +39,7 @@ pkgdir = joinpath(@__DIR__, "..")
 Pkg.activate(pkgdir)
 path_robots = @get_scratch!("robots")
 
-robots = [:hopper, :biped, :quadruped]
+robots = [:hopper, :biped, :quadruped, :box]
 
 for robot in robots
     # robot model
@@ -58,3 +58,20 @@ for robot in robots
 
     @save path_expr r_model rz_model rθ_model
 end
+
+# robot model
+robot = :box
+include(joinpath("../src/robots", String(robot), "model.jl"))
+
+# expr path
+path_expr = joinpath(path_robots, String(robot) * ".jld2")
+
+# kinematics
+contact_kinematics = eval(Symbol(String(robot) * "_contact_kinematics"))
+contact_kinematics_jacobians = eval(Symbol(String(robot) * "_contact_kinematics_jacobians"))
+
+# codegen
+mass_matrix, dynamics_bias = codegen_dynamics(eval(robot))
+r_model, rz_model, rθ_model = codegen_residual(eval(robot), mass_matrix, dynamics_bias, contact_kinematics, contact_kinematics_jacobians)
+
+@save path_expr r_model rz_model rθ_model
