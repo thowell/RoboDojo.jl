@@ -24,3 +24,9 @@ pkg> add RoboDojo
 ### Quadruped 
 <img src="examples/img/quadruped.png" width="200"/>
 
+## Examples 
+
+Please see the following for examples using this package: 
+
+- [Trajectory Optimization with Optimization-Based Dynamics](https://github.com/thowell/optimization_dynamics) 
+- [Fast Contact-Implicit Model-Predictive Control](https://github.com/dojo-sim/ContactImplicitMPC.jl)
