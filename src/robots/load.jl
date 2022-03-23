@@ -5,7 +5,7 @@ jacobian_data_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_rθ"]
 
 path_robots = @get_scratch!("robots")
 
-robots = [hopper, biped, quadruped, box]
+robots = [hopper, biped, quadruped, box, particle, centroidal_quadruped]
 
 for robot in robots
     path = joinpath(path_robots, String(name(robot)) * ".jld2")
@@ -16,8 +16,7 @@ for robot in robots
         contact_kinematics_jacobians = eval(Symbol(String(name(robot)) * "_contact_kinematics_jacobians"))
 
         # codegen
-        mass_matrix, dynamics_bias = codegen_dynamics(eval(robot))
-        r_model, rz_model, rθ_model = codegen_residual(eval(robot), mass_matrix, dynamics_bias, contact_kinematics, contact_kinematics_jacobians)
+        r_model, rz_model, rθ_model = codegen_residual(eval(robot), codegen_dynamics(eval(robot))..., contact_kinematics, contact_kinematics_jacobians)
         @save path r_model rz_model rθ_model
     else
         @load path r_model rz_model rθ_model

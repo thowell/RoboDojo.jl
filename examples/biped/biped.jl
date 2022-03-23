@@ -22,7 +22,7 @@ status = simulate!(s, q1, v1)
 
 # ## Visualizer
 vis = Visualizer()
-render(vis)
+open(vis)
 
 # ## Visualize
 visualize!(vis, s)

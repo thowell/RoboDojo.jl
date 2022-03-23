@@ -1,4 +1,5 @@
 function residual(model::Model, mass_matrix, dynamics_bias, kinematics, kinematics_jacobians, z, θ, μ)
+
     # dimensions 
     nq = model.nq
     nu = model.nu

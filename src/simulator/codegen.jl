@@ -1,5 +1,4 @@
 function codegen_residual(model, mass_matrix, dynamics_bias, contact_kinematics, contact_kinematics_jacobians)
-
     # dimensions
     nz = num_var(model)
     nθ = num_data(model, nf=length(friction_coefficients(model)))

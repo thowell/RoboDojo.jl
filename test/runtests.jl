@@ -9,7 +9,6 @@ using RoboDojo
 # Utils 
 include("utils.jl")
 
-
 # Solver
 include("solver/lu.jl")
 include("solver/random_qp.jl")

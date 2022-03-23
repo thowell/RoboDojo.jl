@@ -49,13 +49,21 @@ include(joinpath("../src/robots/quadruped/visuals.jl"))
 include(joinpath("../src/robots/box/model.jl"))
 include(joinpath("../src/robots/box/visuals.jl"))
 
+include(joinpath("../src/robots/particle/model.jl"))
+include(joinpath("../src/robots/particle/simulator.jl"))
+include(joinpath("../src/robots/particle/visuals.jl"))
+
+include(joinpath("../src/robots/centroidal_quadruped/model.jl"))
+include(joinpath("../src/robots/centroidal_quadruped/simulator.jl"))
+include(joinpath("../src/robots/centroidal_quadruped/visuals.jl"))
+
 include(joinpath("../src/robots/integrator.jl"))
 include(joinpath("../src/robots/codegen.jl"))
 
 include(joinpath("../src/robots/load.jl"))
 
 export
-    hopper, biped, quadruped, box,
+    hopper, biped, quadruped, box, particle, centroidal_quadruped, 
     nominal_configuration,
     step!, simulate!, Simulator, 
     visualize!, Visualizer,

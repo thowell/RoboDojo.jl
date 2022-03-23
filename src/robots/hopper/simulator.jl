@@ -39,6 +39,7 @@ Trajectory(model::Hopper, T) = Trajectory(model, T, nc=4, nb=2)
 GradientTrajectory(model::Hopper, T) = GradientTrajectory(model, T, nc=4, nb=2) 
  
 function residual(model::Hopper, mass_matrix, dynamics_bias, kinematics, kinematics_jacobians, z, θ, μ)
+    
     # dimensions 
     nq = model.nq
     nu = model.nu

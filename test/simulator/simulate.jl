@@ -60,4 +60,82 @@
 
     @test sum(s.stats.sim_time) > 0.0
     @test s.stats.sim_mean[1] > 0.0
+
+    ## box 
+    q1 = nominal_configuration(box)
+    v1 = zeros(box.nq)
+
+    h = 0.01
+    T = 100
+
+    # simulator 
+    s = Simulator(box, T, h=h, diff_sol=true, sim_opts=RoboDojo.SimulatorOptions(record=true))
+
+    # step
+    q2 = step!(s, q1, v1, zeros(box.nu), 1)
+    @test sum(q2) != 0.0
+
+    # simulate
+    status = simulate!(s, q1, v1, reset_traj=true)
+    @test status
+
+    # process timing results
+    RoboDojo.process!(s.stats, 1)
+    @test sum(s.stats.policy_time) > 0.0
+    @test s.stats.policy_mean[1] > 0.0
+
+    @test sum(s.stats.sim_time) > 0.0
+    @test s.stats.sim_mean[1] > 0.0
+
+    ## particle 
+    q1 = nominal_configuration(particle)
+    v1 = zeros(particle.nq)
+
+    h = 0.01
+    T = 100
+
+    # simulator 
+    s = Simulator(particle, T, h=h, diff_sol=true, sim_opts=RoboDojo.SimulatorOptions(record=true))
+
+    # step
+    q2 = step!(s, q1, v1, zeros(particle.nu), 1)
+    @test sum(q2) != 0.0
+
+    # simulate
+    status = simulate!(s, q1, v1, reset_traj=true)
+    @test status
+
+    # process timing results
+    RoboDojo.process!(s.stats, 1)
+    @test sum(s.stats.policy_time) > 0.0
+    @test s.stats.policy_mean[1] > 0.0
+
+    @test sum(s.stats.sim_time) > 0.0
+    @test s.stats.sim_mean[1] > 0.0
+
+    ## centroidal quadruped 
+    q1 = nominal_configuration(centroidal_quadruped)
+    v1 = zeros(centroidal_quadruped.nq)
+
+    h = 0.01
+    T = 100
+
+    # simulator 
+    s = Simulator(centroidal_quadruped, T, h=h, diff_sol=true, sim_opts=RoboDojo.SimulatorOptions(record=true))
+
+    # step
+    q2 = step!(s, q1, v1, zeros(centroidal_quadruped.nu), 1)
+    @test sum(q2) != 0.0
+
+    # simulate
+    status = simulate!(s, q1, v1, reset_traj=true)
+    @test status
+
+    # process timing results
+    RoboDojo.process!(s.stats, 1)
+    @test sum(s.stats.policy_time) > 0.0
+    @test s.stats.policy_mean[1] > 0.0
+
+    @test sum(s.stats.sim_time) > 0.0
+    @test s.stats.sim_mean[1] > 0.0
 end
