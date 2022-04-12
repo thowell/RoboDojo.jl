@@ -7,11 +7,18 @@
 using RoboDojo 
 
 # ## Initial conditions
-q1 = nominal_configuration(centroidal_quadruped)
-v1 = zeros(centroidal_quadruped.nq)
+q1 = nominal_configuration(centroidal_quadruped) 
+height = 0.5 
+q1[3] += height 
+q1[6 + 3] += height 
+q1[9 + 3] += height 
+q1[12 + 3] += height 
+q1[15 + 3] += height 
 
+# v1 = zeros(centroidal_quadruped.nq)
+v1= randn(centroidal_quadruped.nq)
 # ## Time 
-h = 0.1
+h = 0.01
 T = 100
 
 # ## Simulator
@@ -24,7 +31,7 @@ simulate!(s, q1, v1,
 
 # ## Visualizer
 vis = Visualizer()
-render(vis)
+open(vis)
 
 # ## Visualize
 visualize!(vis, s, 

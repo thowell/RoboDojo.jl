@@ -146,6 +146,10 @@ end
 
 # interior point solver
 function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ} #TODO: change to solve!
+    ip.opts.max_time < 0.1 ? _interior_point_solve_time_budget!(ip) : _interior_point_solve!(ip)
+end
+
+function _interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ} #TODO: change to solve!
 
     # space
     s = ip.s
@@ -279,6 +283,192 @@ function interior_point_solve!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ}
         # differentiate solution
         regularization!(ip, κ_vio, ip.opts.γ_reg)
         diff_sol && differentiate_solution!(ip, reg=ip.reg_val[1])
+        return true
+    else
+        return false
+    end
+end
+
+function _interior_point_solve_time_budget!(ip::InteriorPoint{T,R,RZ,Rθ}) where {T,R,RZ,Rθ} #TODO: change to solve!
+    # space
+    s = ip.s
+
+    # options
+    opts = ip.opts
+    r_tol = opts.r_tol
+    κ_tol = opts.κ_tol
+    ls_scale = opts.ls_scale
+    max_iter = opts.max_iter
+    max_time = opts.max_time
+    max_ls = opts.max_ls
+    diff_sol = opts.diff_sol
+    ϵ_min = opts.ϵ_min
+    κ_reg = opts.κ_reg
+    γ_reg = opts.γ_reg
+    reg = opts.reg
+    verbose = opts.verbose
+    warn = opts.warn
+
+    # unpack pre-allocated data
+    z = ip.z
+    z̄ = ip.z̄
+    r = ip.r
+    rz = ip.rz
+    Δ = ip.Δ
+    θ = ip.θ
+
+    # regularization
+    ip.reg_val[1] = 0.0 # reset
+
+    zort = ip.zort 
+    Δort = ip.Δort
+    zsoc = ip.zsoc 
+    Δsoc = ip.Δsoc 
+    ρv = ip.ρv 
+
+    # indices
+    idx = ip.idx
+    ortz = idx.ortz
+    ortΔ = idx.ortΔ
+    socz = idx.socz
+    socΔ = idx.socΔ
+    bil = idx.bil
+    ortr = idx.ortr
+    socr = idx.socr
+    sorci = idx.socri
+    soce = ip.idx_soce
+
+    # initialization
+    solver = ip.solver
+    ip.iterations = 0
+
+    # evaluate residual
+    ip.methods.r!(r, z, θ, 0.0)
+
+    # evaluate bilinear constraint violation
+    κ_vio = bilinear_violation(ip, r)
+
+    # evaluate equality constraint violation 
+    r_vio = residual_violation(ip, r)
+
+    # begin timer
+    elapsed_time = 0.0
+
+    for j = 1:max_iter
+        elapsed_time += @elapsed begin
+            # check for converged residual
+            if (r_vio < r_tol) && (κ_vio < κ_tol)
+                break
+            end
+            ip.iterations += 1
+        end
+        elapsed_time >= max_time && (return false)
+
+        elapsed_time += @elapsed begin
+            # Compute regularization level
+            regularization!(ip, κ_vio, κ_reg, γ_reg)
+        end
+        elapsed_time >= max_time && (return false)
+
+        elapsed_time += @elapsed begin
+            # compute residual Jacobian
+            rz!(ip, rz, z, θ, reg=ip.reg_val[1]) # this is not adapted to the second-order cone
+        end
+        elapsed_time >= max_time && (return false)
+
+        elapsed_time += @elapsed begin
+            # compute step
+            linear_solve!(solver, Δ, rz, r, reg=ip.reg_val[1])
+        end
+        elapsed_time >= max_time && (return false)
+
+        elapsed_time += @elapsed begin
+            α_ort = ort_step_length(z, Δ, ortz, ortΔ, τ=1.0)
+            α_soc = soc_step_length(z, Δ, socz, socΔ, zsoc, Δsoc, ρv, soce, τ=1.0, verbose=false)
+            α = min(α_ort, α_soc)
+        end
+        elapsed_time >= max_time && (return false)
+
+        elapsed_time += @elapsed begin
+            μ, σ = centering(z, Δ, ortz, ortΔ, socz, socΔ, zort, Δort, zsoc, Δsoc, α)
+            # Compute corrector residual
+            ip.κ[1] = max(σ * μ , κ_tol / opts.undercut)
+        end
+        elapsed_time >= max_time && (return false)
+
+        elapsed_time += @elapsed begin
+            ip.methods.r!(r, z, θ, ip.κ) # here we set κ = σ*μ, Δ = Δaff
+        end
+        elapsed_time >= max_time && (return false)
+
+        elapsed_time += @elapsed begin
+            general_correction_term!(r, Δ, ortr, socr, sorci, ortΔ, socΔ)
+        end
+        elapsed_time >= max_time && (return false)
+
+        elapsed_time += @elapsed begin
+            # Compute corrector search direction
+            linear_solve!(solver, Δ, rz, r, reg=ip.reg_val[1], fact=false)
+        end
+        elapsed_time >= max_time && (return false)
+
+        elapsed_time += @elapsed begin
+            τ = max(0.95, 1 - max(r_vio, κ_vio)^2)
+
+            α_ort = ort_step_length(z, Δ, ortz, ortΔ, τ=τ)
+            α_soc = soc_step_length(z, Δ, socz, socΔ, zsoc, Δsoc, ρv, soce, τ=min(τ, 0.99), verbose=false)
+            α = min(α_ort, α_soc)
+        end
+        elapsed_time >= max_time && (return false)
+
+        elapsed_time += @elapsed begin
+            # reduce norm of residual
+            candidate_point!(z, s, z, Δ, α)
+        end
+        elapsed_time >= max_time && (return false)
+
+            κ_vio_cand = 0.0
+            r_vio_cand = 0.0
+            for i = 1:max_ls
+                elapsed_time += @elapsed begin
+                    ip.methods.r!(r, z, θ, 0.0)
+                end
+                elapsed_time >= max_time && (return false)
+
+                elapsed_time += @elapsed begin
+                    κ_vio_cand = bilinear_violation(ip, r)
+                    r_vio_cand = residual_violation(ip, r)
+                    if (r_vio_cand <= r_vio) || (κ_vio_cand <= κ_vio)
+                        break
+                    end
+                    verbose && println("linesearch $i")
+                end
+                elapsed_time >= max_time && (return false)
+
+                elapsed_time += @elapsed begin
+                    # backtracking
+                    candidate_point!(z, s, z, Δ, -α * ls_scale^i)
+                end
+                elapsed_time >= max_time && (return false)
+            end
+
+            elapsed_time += @elapsed begin
+                # update
+                κ_vio = κ_vio_cand
+                r_vio = r_vio_cand
+            
+                verbose && iterate_info(j, r, r_vio, κ_vio, Δ, α) 
+            end
+            elapsed_time >= max_time && (return false)
+        end
+
+    if (r_vio < r_tol) && (κ_vio < κ_tol)
+        elapsed_time += @elapsed begin
+            # differentiate solution
+            regularization!(ip, κ_vio, ip.opts.γ_reg)
+            diff_sol && differentiate_solution!(ip, reg=ip.reg_val[1])
+        end
+        elapsed_time >= max_time && (return false)
         return true
     else
         return false

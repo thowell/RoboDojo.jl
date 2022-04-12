@@ -15,7 +15,7 @@ h = 0.01
 T = 100
 
 # ## Simulator
-s = Simulator(biped, T, h=h)
+s = Simulator(biped, T, h=h) 
 
 # ## Simulate
 status = simulate!(s, q1, v1)
