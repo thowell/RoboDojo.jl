@@ -5,12 +5,12 @@ jacobian_data_expr(model::Model) = RESIDUAL_EXPR[String(name(model)) * "_rθ"]
 
 path_robots = @get_scratch!("robots")
 
-robots = [hopper, biped, quadruped, box, particle, centroidal_quadruped]
+robots = [hopper, biped, quadruped, halfquadruped, halfcheetah, box, particle, centroidal_quadruped]
 
 for robot in robots
     path = joinpath(path_robots, String(name(robot)) * ".jld2")
 
-    if !isfile(path) 
+    if !isfile(path)
         # kinematics
         contact_kinematics = eval(Symbol(String(name(robot)) * "_contact_kinematics"))
         contact_kinematics_jacobians = eval(Symbol(String(name(robot)) * "_contact_kinematics_jacobians"))

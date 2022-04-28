@@ -32,6 +32,7 @@ include(joinpath("../src/simulator/policy.jl"))
 include(joinpath("../src/simulator/simulator.jl"))
 include(joinpath("../src/simulator/residual.jl"))
 include(joinpath("../src/simulator/codegen.jl"))
+include(joinpath("../src/simulator/dynamics.jl"))
 
 # Robots
 include(joinpath("../src/robots/visual_utils.jl"))
@@ -45,6 +46,12 @@ include(joinpath("../src/robots/biped/visuals.jl"))
 
 include(joinpath("../src/robots/quadruped/model.jl"))
 include(joinpath("../src/robots/quadruped/visuals.jl"))
+
+include(joinpath("../src/robots/halfquadruped/model.jl"))
+include(joinpath("../src/robots/halfquadruped/visuals.jl"))
+
+include(joinpath("../src/robots/halfcheetah/model.jl"))
+include(joinpath("../src/robots/halfcheetah/visuals.jl"))
 
 include(joinpath("../src/robots/box/model.jl"))
 include(joinpath("../src/robots/box/visuals.jl"))
@@ -63,14 +70,14 @@ include(joinpath("../src/robots/codegen.jl"))
 include(joinpath("../src/robots/load.jl"))
 
 export
-    hopper, biped, quadruped, box, particle, centroidal_quadruped, 
+    hopper, biped, quadruped, halfquadruped, halfcheetah, box, particle, centroidal_quadruped,
     nominal_configuration,
-    step!, simulate!, Simulator, 
+    step!, simulate!, Simulator,
     visualize!, Visualizer,
     friction_coefficients,
-    lagrangian, 
-    num_var, num_data, 
-    residual,  
+    lagrangian,
+    num_var, num_data,
+    residual,
     render, open
 
 end # module

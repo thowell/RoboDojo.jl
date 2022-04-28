@@ -22,7 +22,7 @@ function SimulatorStatistics(H)
     sim_time = zeros(H)
     sim_mean = zeros(1)
     sim_std = zeros(1)
-    return SimulatorStatistics(policy_time, policy_mean, policy_std, 
+    return SimulatorStatistics(policy_time, policy_mean, policy_std,
         sim_time, sim_mean, sim_std)
 end
 
@@ -33,14 +33,14 @@ function process!(stats::SimulatorStatistics, N_sample::Int)
     policy_time = sum(reshape(stats.policy_time, (H, N_sample)), dims=2)
     stats.policy_mean[1] = mean(policy_time)
     stats.policy_std[1] = sqrt(mean((policy_time .- stats.policy_mean[1]).^2.0))
-    
+
     # simulation
     H_sim = length(stats.sim_time)
     H = Int(H_sim / N_sample)
     sim_time = sum(reshape(stats.sim_time, (H, N_sample)), dims=2)
     stats.sim_mean[1] = mean(sim_time)
     stats.sim_std[1] = sqrt(mean((sim_time .- stats.sim_mean[1]).^2.0))
-    
+
     return nothing
 end
 
@@ -59,35 +59,35 @@ struct Simulator{T,R,RZ,Rθ,M<:Model{T},P<:Policy{T},D<:Disturbances{T}}
     opts::SimulatorOptions{T}
 end
 
-function Simulator(model, T; 
-        h=0.01, 
-        policy=empty_policy(model), 
-        dist=empty_disturbances(model), 
+function Simulator(model, T;
+        h=0.01,
+        policy=empty_policy(model),
+        dist=empty_disturbances(model),
         f=friction_coefficients(model),
-        residual=eval(residual_expr(model)), 
-        jacobian_z=eval(jacobian_var_expr(model)), 
+        residual=eval(residual_expr(model)),
+        jacobian_z=eval(jacobian_var_expr(model)),
         jacobian_θ=eval(jacobian_data_expr(model)),
         diff_sol=false,
         solver_opts=InteriorPointOptions(
             undercut=Inf,
             γ_reg=0.1,
             r_tol=1e-8,
-            κ_tol=1e-8,  
+            κ_tol=1e-8,
             max_ls=25,
             ϵ_min=0.25,
             diff_sol=diff_sol,
             verbose=false),
         stats=SimulatorStatistics(T),
         sim_opts=SimulatorOptions())
-    
+
     idx_z = indices_z(model)
     idx_θ = indices_θ(model, nf=length(f))
     idx_opt = indices_optimization(model)
-    
-    nz = num_var(model) 
+
+    nz = num_var(model)
     nθ = num_data(model, nf=length(f))
-    z0 = zeros(nz) 
-    θ0 = zeros(nθ) 
+    z0 = zeros(nz)
+    θ0 = zeros(nθ)
     q0 = nominal_configuration(model)
     initialize_z!(z0, model, idx_z, q0)
     initialize_θ!(θ0, model, idx_θ, q0, q0, zeros(model.nu), zeros(model.nw), f, h)
@@ -128,7 +128,7 @@ function step!(s::Simulator{T}, t::Int; verbose=false) where T
     s.opts.record && (s.stats.sim_time[t] = sim_time)
 
     # status check
-    if !status 
+    if !status
         verbose && (@show norm(ip.r))
         verbose && (@warn "residual failure")
         return false
@@ -147,18 +147,18 @@ function step!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T}, u::A
     # set state
     set_state!(s, q, v, t)
 
-    # set control 
-    s.traj.u[t] .= u 
+    # set control
+    s.traj.u[t] .= u
 
-    # step 
-    step!(s, t, verbose=verbose) 
+    # step
+    step!(s, t, verbose=verbose)
 
     return s.traj.q[t+2] #TODO: return gradients
 end
 
-function solution!(traj::Trajectory{T}, z::Vector{T}, idx_z::IndicesZ, h::T, t::Int) where T 
+function solution!(traj::Trajectory{T}, z::Vector{T}, idx_z::IndicesZ, h::T, t::Int) where T
     q = @views z[idx_z.q]
-    γ = @views z[idx_z.γ] 
+    γ = @views z[idx_z.γ]
     b = @views z[idx_z.b]
 
     # current configuration
@@ -166,11 +166,11 @@ function solution!(traj::Trajectory{T}, z::Vector{T}, idx_z::IndicesZ, h::T, t::
 
     # current velocity
     traj.v[t+1] .= traj.q[t+2]
-    traj.v[t+1] .-= traj.q[t+1] 
+    traj.v[t+1] .-= traj.q[t+1]
     traj.v[t+1] ./= h
 
     # contact impulses
-    traj.γ[t] .= γ 
+    traj.γ[t] .= γ
     traj.b[t] .= b
 
     return nothing
@@ -186,7 +186,7 @@ function gradient!(grad::GradientTrajectory{T}, h::T, δz::Matrix{T}, idx_z::Ind
     ∂b1∂q1 = @views δz[idx_z.b, idx_θ.q1]
     ∂b1∂q2 = @views δz[idx_z.b, idx_θ.q2]
     ∂b1∂u1 = @views δz[idx_z.b, idx_θ.u]
-    
+
     grad.∂q3∂q1[t] .= ∂q3∂q1
     grad.∂q3∂q2[t] .= ∂q3∂q2
     grad.∂q3∂u1[t] .= ∂q3∂u1
@@ -214,28 +214,28 @@ function gradient!(grad::GradientTrajectory{T}, h::T, δz::Matrix{T}, idx_z::Ind
     return nothing
 end
 
-function set_state!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T}, t::Int) where T 
+function set_state!(s::Simulator{T}, q::AbstractArray, v::AbstractArray, t::Int) where T
     # initial configuration and velocity
     s.traj.q[t+1] .= q # q2
     s.traj.v[t] .= v   # v1
 
     # q1
-    s.traj.q[t] .= v 
+    s.traj.q[t] .= v
     s.traj.q[t] .*= s.h
     s.traj.q[t] .*= -1.0
     s.traj.q[t] .+= q
-    
-    return nothing 
+
+    return nothing
 end
 
-function simulate!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T}; 
+function simulate!(s::Simulator{T}, q::AbstractVector{T}, v::AbstractVector{T};
         reset_traj=false, verbose=false) where T
     # reset trajectory
-    reset_traj && reset!(s.traj) 
+    reset_traj && reset!(s.traj)
     reset_traj && reset!(s.grad)
 
     # reset solver
-    
+
     # set initial state
     set_state!(s, q, v, 1)
 
@@ -252,11 +252,11 @@ function simulate!(s::Simulator{T}; verbose=false) where T
     traj = s.traj
 
     for t = 1:N
-        # policy 
+        # policy
         policy_time = @elapsed traj.u[t] .= policy(p, traj, t)
         s.opts.record && (s.stats.policy_time[t] = policy_time)
 
-        # disturbances 
+        # disturbances
         traj.w[t] .= disturbances(w, traj.q[t+1], t)
 
         # step
