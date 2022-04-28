@@ -1,5 +1,5 @@
 function module_dir()
-    joinpath(@__DIR__, "../..")
+    joinpath(@__DIR__, "..")
 end
 
 using Pkg
