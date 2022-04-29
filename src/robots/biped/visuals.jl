@@ -1,43 +1,43 @@
-function build_robot!(vis::Visualizer, model::Biped; 
+function build_robot!(vis::Visualizer, model::Biped;
     r=0.035, r_contact=r * 8.0 / 7.0, color_opacity=1.0)
 
-    r = convert(Float32, r) 
+    r = convert(Float32, r)
     r_contact = convert(Float32, r_contact)
-    
+
     body_mat = MeshPhongMaterial(color = RGBA(0.0, 0.0, 0.0, color_opacity))
     contact_mat = MeshPhongMaterial(color = RGBA(1.0, 165.0 / 255.0, 0.0, color_opacity))
 
     default_background!(vis)
 
-    torso = Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.l_torso), r)
+    torso = GeometryBasics.Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.l_torso), r)
     setobject!(vis[:robot]["torso"], torso, body_mat)
 
-    thigh_1 = Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.l_thigh1), r)
+    thigh_1 = GeometryBasics.Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.l_thigh1), r)
     setobject!(vis[:robot]["thigh1"], thigh_1, body_mat)
 
-    calf_1 = Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.l_calf1), r)
+    calf_1 = GeometryBasics.Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.l_calf1), r)
     setobject!(vis[:robot]["calf1"], calf_1, body_mat)
 
-    foot_1 = Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.lt_foot1 + model.lh_foot1), r)
+    foot_1 = GeometryBasics.Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.lt_foot1 + model.lh_foot1), r)
     setobject!(vis[:robot]["foot1"], foot_1, body_mat)
 
-    thigh_2 = Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.l_thigh2), r)
+    thigh_2 = GeometryBasics.Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.l_thigh2), r)
     setobject!(vis[:robot]["thigh2"], thigh_2, body_mat)
 
-    calf_2 = Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.l_calf2), r)
+    calf_2 = GeometryBasics.Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.l_calf2), r)
     setobject!(vis[:robot]["calf2"], calf_2, body_mat)
 
-    foot_2 = Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.lt_foot2 + model.lh_foot2), r)
+    foot_2 = GeometryBasics.Cylinder(Point3f0(0.0), Point3f0(0.0, 0.0, model.lt_foot2 + model.lh_foot2), r)
     setobject!(vis[:robot]["foot2"], foot_2, body_mat)
 
-    setobject!(vis[:robot]["heel1"], Sphere(Point3f0(0.0), r_contact), contact_mat)
-    setobject!(vis[:robot]["heel2"], Sphere(Point3f0(0.0), r_contact), contact_mat)
-    setobject!(vis[:robot]["toe1"], Sphere(Point3f0(0.0), r_contact), contact_mat)
-    setobject!(vis[:robot]["toe2"], Sphere(Point3f0(0.0), r_contact), contact_mat)
-    setobject!(vis[:robot]["knee1"], Sphere(Point3f0(0.0), r), body_mat)
-    setobject!(vis[:robot]["knee2"], Sphere(Point3f0(0.0), r), body_mat)
-    setobject!(vis[:robot]["hip"], Sphere(Point3f0(0.0), r), body_mat)
-    setobject!(vis[:robot]["torso_top"], Sphere(Point3f0(0.0), r), body_mat)
+    setobject!(vis[:robot]["heel1"], GeometryBasics.Sphere(Point3f0(0.0), r_contact), contact_mat)
+    setobject!(vis[:robot]["heel2"], GeometryBasics.Sphere(Point3f0(0.0), r_contact), contact_mat)
+    setobject!(vis[:robot]["toe1"], GeometryBasics.Sphere(Point3f0(0.0), r_contact), contact_mat)
+    setobject!(vis[:robot]["toe2"], GeometryBasics.Sphere(Point3f0(0.0), r_contact), contact_mat)
+    setobject!(vis[:robot]["knee1"], GeometryBasics.Sphere(Point3f0(0.0), r), body_mat)
+    setobject!(vis[:robot]["knee2"], GeometryBasics.Sphere(Point3f0(0.0), r), body_mat)
+    setobject!(vis[:robot]["hip"], GeometryBasics.Sphere(Point3f0(0.0), r), body_mat)
+    setobject!(vis[:robot]["torso_top"], GeometryBasics.Sphere(Point3f0(0.0), r), body_mat)
 
     return true
 end
@@ -98,7 +98,7 @@ function set_robot!(vis::Visualizer, model::Biped, q;
     return true
 end
 
-function visualize!(vis, model::Biped, q; 
+function visualize!(vis, model::Biped, q;
 	Δt=0.1, r=0.04, r_contact=0.04, color_opacity=1.0, fixed_camera=true)
 
 	build_robot!(vis, model, r=r, r_contact=r_contact, color_opacity=color_opacity)

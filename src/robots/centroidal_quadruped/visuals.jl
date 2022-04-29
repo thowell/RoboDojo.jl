@@ -1,7 +1,7 @@
-function build_robot!(vis::Visualizer, model::CentroidalQuadruped; 
+function build_robot!(vis::Visualizer, model::CentroidalQuadruped;
 	body_height=0.025,
 	body_length=0.1,
-	body_width=0.1, 
+	body_width=0.1,
 	foot_radius=0.025,
 	color_opacity=1.0)
 
@@ -11,29 +11,29 @@ function build_robot!(vis::Visualizer, model::CentroidalQuadruped;
 	default_background!(vis)
 
 	setobject!(vis[:body],
-    	Rect(Vec(-body_length, -body_width, -body_height),Vec(2.0 * body_length, 2.0 * body_width, body_height)),
+    	GeometryBasics.Rect(Vec(-body_length, -body_width, -body_height),Vec(2.0 * body_length, 2.0 * body_width, body_height)),
     	body_mat)
 
-	foot1 = setobject!(vis["foot1"], Sphere(Point3f0(0),
+	foot1 = setobject!(vis["foot1"], GeometryBasics.Sphere(Point3f0(0),
         convert(Float32, foot_radius)),
         foot_mat)
 
-	foot2 = setobject!(vis["foot2"], Sphere(Point3f0(0),
+	foot2 = setobject!(vis["foot2"], GeometryBasics.Sphere(Point3f0(0),
 		convert(Float32, foot_radius)),
 		foot_mat)
 
-	foot3 = setobject!(vis["foot3"], Sphere(Point3f0(0),
+	foot3 = setobject!(vis["foot3"], GeometryBasics.Sphere(Point3f0(0),
 		convert(Float32, foot_radius)),
 		foot_mat)
 
-	foot4 = setobject!(vis["foot4"], Sphere(Point3f0(0),
+	foot4 = setobject!(vis["foot4"], GeometryBasics.Sphere(Point3f0(0),
 		convert(Float32, foot_radius)),
 		foot_mat)
 end
 
-function set_robot!(vis::Visualizer, model::CentroidalQuadruped, q::AbstractVector; 
+function set_robot!(vis::Visualizer, model::CentroidalQuadruped, q::AbstractVector;
 	p_shift=[0.0; 0.0; 0.025])
-	
+
 	R = mrp_rotation_matrix(q[4:6])
 
 	p_body  = q[0  .+ (1:3)] + p_shift
@@ -50,19 +50,19 @@ function set_robot!(vis::Visualizer, model::CentroidalQuadruped, q::AbstractVect
 
 end
 
-function visualize!(vis, model::CentroidalQuadruped, q; 
+function visualize!(vis, model::CentroidalQuadruped, q;
 	Δt=0.1,
 	body_height=0.025,
 	body_length=0.1,
-	body_width=0.1, 
+	body_width=0.1,
 	foot_radius=0.025,
-	color_opacity=1.0, 
+	color_opacity=1.0,
 	fixed_camera=false)
 
 	build_robot!(vis, model,
 		body_height=body_height,
 		body_length=body_length,
-		body_width=body_width, 
+		body_width=body_width,
 		foot_radius=foot_radius,
 		color_opacity=color_opacity)
 

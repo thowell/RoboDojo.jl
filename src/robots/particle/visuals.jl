@@ -4,8 +4,8 @@ function build_robot!(vis, model::Particle;
     tl=1.0,
     particle_color=Colors.RGBA(0.0, 0.0, 0.0, tl))
 
-    setobject!(vis["particle_$i"], 
-        Sphere(Point3f0(0),
+    setobject!(vis["particle_$i"],
+        GeometryBasics.Sphere(Point3f0(0),
         convert(Float32, r)),
         MeshPhongMaterial(color=particle_color))
 end
@@ -31,7 +31,7 @@ function visualize!(vis, model::Particle, q;
         i=i,
         r=r,
         tl=tl,
-        particle_color=particle_color) 
+        particle_color=particle_color)
 
     anim = MeshCat.Animation(convert(Int, floor(1.0 / Δt)))
 
