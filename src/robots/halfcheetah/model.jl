@@ -11,7 +11,7 @@
         q8 - leg 3 knee angle  (absolute)
         q9 - leg 3 ankle angle (absolute)
 """
-mutable struct Halfcheetah{T} <: RoboDojo.Model{T}
+mutable struct Halfcheetah{T} <: Model{T}
     # dimensions
 	nq::Int # generalized coordinates
     nu::Int # controls

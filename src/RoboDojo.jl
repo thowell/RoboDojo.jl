@@ -51,10 +51,10 @@ include(joinpath("../src/robots/halfquadruped/model.jl"))
 include(joinpath("../src/robots/halfquadruped/visuals.jl"))
 
 include(joinpath("../src/robots/halfcheetah/model.jl"))
-include(joinpath("../src/robots/halfcheetah/model4.jl"))
 include(joinpath("../src/robots/halfcheetah/visuals.jl"))
-include(joinpath("../src/robots/halfcheetah/visuals4.jl"))
 
+include(joinpath("../src/robots/halfcheetah4/model.jl"))
+include(joinpath("../src/robots/halfcheetah4/visuals.jl"))
 
 include(joinpath("../src/robots/box/model.jl"))
 include(joinpath("../src/robots/box/visuals.jl"))

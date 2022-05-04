@@ -45,7 +45,10 @@ pkgdir = joinpath(@__DIR__, "..")
 Pkg.activate(pkgdir)
 path_robots = @get_scratch!("robots")
 
-robots = [:hopper, :biped, :quadruped, :box, :particle, :centroidal_quadruped]
+robots = [
+        # :hopper, :biped, :quadruped, :box, :particle, :centroidal_quadruped, 
+        :halfcheetah, :halfcheetah4,
+        ]
 
 for robot in robots
     # robot model
