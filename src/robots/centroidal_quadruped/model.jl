@@ -94,9 +94,10 @@ end
 function input_jacobian(model::CentroidalQuadruped, q)
     position_body = q[1:3]
     orientation_body = q[3 .+ (1:3)]
-    R = mrp_rotation_matrix(orientation_body)
-
-	# kinematics in world frame
+    # R = mrp_rotation_matrix(orientation_body)
+    R = euler_rotation_matrix(orientation_body)
+    
+    # kinematics in world frame
 	r1 = q[6 .+ (1:3)] - position_body
 	r2 = q[9 .+ (1:3)] - position_body
 	r3 = q[12 .+ (1:3)] - position_body
