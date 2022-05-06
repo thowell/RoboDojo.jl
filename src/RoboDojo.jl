@@ -47,6 +47,9 @@ include(joinpath("../src/robots/biped/visuals.jl"))
 include(joinpath("../src/robots/quadruped/model.jl"))
 include(joinpath("../src/robots/quadruped/visuals.jl"))
 
+include(joinpath("../src/robots/quadruped4/model.jl"))
+include(joinpath("../src/robots/quadruped4/visuals.jl"))
+
 include(joinpath("../src/robots/halfquadruped/model.jl"))
 include(joinpath("../src/robots/halfquadruped/visuals.jl"))
 
@@ -73,7 +76,7 @@ include(joinpath("../src/robots/codegen.jl"))
 include(joinpath("../src/robots/load.jl"))
 
 export
-    hopper, biped, quadruped, halfquadruped, halfcheetah, halfcheetah4, box, particle, centroidal_quadruped,
+    hopper, biped, quadruped, quadruped4, halfquadruped, halfcheetah, halfcheetah4, box, particle, centroidal_quadruped,
     nominal_configuration,
     step!, simulate!, Simulator,
     visualize!, Visualizer,
