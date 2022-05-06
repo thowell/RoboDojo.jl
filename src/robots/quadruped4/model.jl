@@ -490,7 +490,7 @@ end
 nq = 3 + 2 * 4            # generalized coordinates
 nu = 2 * 4                # controls
 nw = 0                    # parameters
-nc = 10                   # contact points 
+nc = 4                   # contact points 
 
 # parameters
 gravity = 9.81            # gravity
