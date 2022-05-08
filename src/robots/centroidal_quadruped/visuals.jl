@@ -47,6 +47,7 @@ function set_robot!(vis::Visualizer, model::CentroidalQuadruped, q::AbstractVect
 	settransform!(vis["foot2"], Translation(p_foot2))
 	settransform!(vis["foot3"], Translation(p_foot3))
 	settransform!(vis["foot4"], Translation(p_foot4))
+
 end
 
 function visualize!(vis, model::CentroidalQuadruped, q;
