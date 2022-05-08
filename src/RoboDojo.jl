@@ -70,20 +70,30 @@ include(joinpath("../src/robots/centroidal_quadruped/model.jl"))
 include(joinpath("../src/robots/centroidal_quadruped/simulator.jl"))
 include(joinpath("../src/robots/centroidal_quadruped/visuals.jl"))
 
+include(joinpath("../src/robots/point_foot_quadruped/model.jl"))
+include(joinpath("../src/robots/point_foot_quadruped/simulator.jl"))
+include(joinpath("../src/robots/point_foot_quadruped/visuals.jl"))
+
 include(joinpath("../src/robots/integrator.jl"))
 include(joinpath("../src/robots/codegen.jl"))
 
 include(joinpath("../src/robots/load.jl"))
 
 export
-    hopper, biped, quadruped, quadruped4, halfquadruped, halfcheetah, halfcheetah4, box, particle, centroidal_quadruped,
+    hopper, biped, quadruped, quadruped4, halfquadruped,
+    halfcheetah, halfcheetah4, box, particle, centroidal_quadruped, point_foot_quadruped,
     nominal_configuration,
-    step!, simulate!, Simulator,
-    visualize!, Visualizer,
+    step!,
+    simulate!,
+    Simulator,
+    visualize!,
+    Visualizer,
     friction_coefficients,
     lagrangian,
-    num_var, num_data,
+    num_var,
+    num_data,
     residual,
-    render, open
+    render,
+    open
 
 end # module
