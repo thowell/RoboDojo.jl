@@ -50,6 +50,9 @@ include(joinpath("../src/robots/quadruped/visuals.jl"))
 include(joinpath("../src/robots/quadruped4/model.jl"))
 include(joinpath("../src/robots/quadruped4/visuals.jl"))
 
+include(joinpath("../src/robots/quadruped_spring/model.jl"))
+include(joinpath("../src/robots/quadruped_spring/visuals.jl"))
+
 include(joinpath("../src/robots/halfquadruped/model.jl"))
 include(joinpath("../src/robots/halfquadruped/visuals.jl"))
 
