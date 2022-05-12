@@ -46,7 +46,7 @@ Pkg.activate(pkgdir)
 path_robots = @get_scratch!("robots")
 
 robots = [
-        # :hopper, :biped, :quadruped, :box, :particle, :centroidal_quadruped, 
+        :hopper, :hopper1, :biped, :quadruped, :box, :particle, :centroidal_quadruped, 
         :halfcheetah, :halfcheetah4,
         ]
 
