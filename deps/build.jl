@@ -41,12 +41,16 @@ include("../src/robots/particle/simulator.jl")
 include("../src/robots/centroidal_quadruped/model.jl")  # centroidal quadruped special case
 include("../src/robots/centroidal_quadruped/simulator.jl")
 
+include("../src/robots/centroidal_quadruped_ic/model.jl")  # centroidal quadruped special case
+include("../src/robots/centroidal_quadruped_ic/simulator.jl")
+
+
 pkgdir = joinpath(@__DIR__, "..")
 Pkg.activate(pkgdir)
 path_robots = @get_scratch!("robots")
 
 robots = [
-        :hopper, :hopper1, :biped, :quadruped, :box, :particle, :centroidal_quadruped, 
+        :hopper, :hopper1, :biped, :quadruped, :box, :particle, :centroidal_quadruped, :centroidal_quadruped_ic,
         :halfcheetah, :halfcheetah4,
         ]
 

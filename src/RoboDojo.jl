@@ -76,6 +76,10 @@ include(joinpath("../src/robots/centroidal_quadruped/model.jl"))
 include(joinpath("../src/robots/centroidal_quadruped/simulator.jl"))
 include(joinpath("../src/robots/centroidal_quadruped/visuals.jl"))
 
+include(joinpath("../src/robots/centroidal_quadruped_ic/model.jl"))
+include(joinpath("../src/robots/centroidal_quadruped_ic/simulator.jl"))
+include(joinpath("../src/robots/centroidal_quadruped_ic/visuals.jl"))
+
 include(joinpath("../src/robots/point_foot_quadruped/model.jl"))
 include(joinpath("../src/robots/point_foot_quadruped/simulator.jl"))
 include(joinpath("../src/robots/point_foot_quadruped/visuals.jl"))
@@ -87,7 +91,7 @@ include(joinpath("../src/robots/load.jl"))
 
 export
     hopper, hopper1, biped, quadruped, quadruped4, halfquadruped,
-    halfcheetah, halfcheetah4, box, particle, centroidal_quadruped, point_foot_quadruped,
+    halfcheetah, halfcheetah4, box, particle, centroidal_quadruped, centroidal_quadruped_ic, point_foot_quadruped,
     nominal_configuration,
     step!,
     simulate!,
